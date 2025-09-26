@@ -71,7 +71,7 @@ export default function Chart() {
       },
       title: {
         display: true,
-        text: "Monthly Sales & Revenue",
+        text: "Monthly Sales & Revenue"
       },
     },
     scales: {
