@@ -63,6 +63,8 @@ export default function Layout({ children }) {
     { label: 'Users', path: '/user', icon: <PersonIcon /> },
     { label: 'Post', path: '/post', icon: <DataIcon /> },
     { label: "Table", path: "/table", icon: <TableChartIcon /> },
+    { label: "Chart", path: "/chart", icon: <TableChartIcon /> },
+    { label: "BarChart", path: "/barchart", icon: <DashboardIcon /> },
   ];
 
   return (
