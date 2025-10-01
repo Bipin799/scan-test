@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useRef, useEffect, useState, useMemo } from "react";
@@ -34,11 +33,13 @@ const stickyLabelPlugin = {
 
     const labelCount = xAxis.ticks.length;
 
+    console.log("the values of lab---->", labelCount);
+    
 
     // Dynamic skip interval based on label count
     const skipInterval =
-      labelCount > 50 ? 2 :
-      labelCount < 30 ? 1 : 1;
+      labelCount > 50 ? 1: 1;
+      // labelCount < 30 ? 1 : 1;
     
     xAxis.ticks.forEach((tick, index) => {
       if (index % skipInterval !== 0) return;
@@ -49,9 +50,8 @@ const stickyLabelPlugin = {
 
       ctx.save();
       ctx.translate(x, y);
-      ctx.rotate(-Math.PI / 4); // Rotate labels for better fit
+      ctx.rotate(-Math.PI / 4);
 
-      // Draw label
       ctx.fillText(label, 0, 0);
       ctx.restore();
     });
@@ -98,54 +98,19 @@ const rangeLinePlugin = {
     ctx.stroke();
 
     ctx.restore();
-
-    ctx.save();
-
-    const badgePadding = 2;
-    const badgeHeight = 22;
-    const badgeRadius = 4;
-
-    const drawBadge = (label, y, offsetY = 0) => {
-      ctx.font = "300 14px Arial";
-      const textWidth = ctx.measureText(label).width;
-      const x = chart.chartArea.left;
-
-      ctx.fillStyle = "#000";
-      ctx.shadowColor = "rgba(0,0,0,0.3)";
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetX = 1;
-      ctx.shadowOffsetY = 1;
-
-      ctx.beginPath();
-      if (ctx.roundRect) {
-        ctx.roundRect(x, y - badgeHeight / 2 + offsetY, textWidth + badgePadding * 2, badgeHeight, badgeRadius);
-      } else {
-        ctx.rect(x, y - badgeHeight / 2 + offsetY, textWidth + badgePadding * 2, badgeHeight);
-      }
-      ctx.fill();
-
-      ctx.fillStyle = "#fff";
-      ctx.shadowColor = "transparent";
-      ctx.textBaseline = "middle";
-      ctx.fillText(label, x + badgePadding, y + offsetY);
-    };
-
-
-    drawBadge(" Min Range (97°F) ", minY,badgeHeight );
-    drawBadge(" Max: Range (99°F) ", maxY,  -badgeHeight);
-
-    ctx.restore();
   }
 };
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, stickyLabelPlugin, Title, Tooltip, Legend, rangeLinePlugin);
 
 export default function Chart() {
-  const visibleBars = 55;
+  const visibleBars = 45;
   const totalBars = bardata.length;
 
   const containerRef = useRef(null);
+  const chartRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   // Resize handler
   useEffect(() => {
@@ -155,6 +120,19 @@ export default function Chart() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Scroll handler
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      setScrollLeft(container.scrollLeft);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   const barWidth = containerWidth > 0 ? containerWidth / visibleBars : 100;
@@ -174,25 +152,23 @@ export default function Chart() {
     const maxval = maxReading + 5;
 
     const numberOfLabels = 5;
-    const step = (maxReading - minReading + 40) / (numberOfLabels-1);
+    const step = (maxReading - minReading + 40) / (numberOfLabels - 1);
 
     const customLabels = Array.from({ length: numberOfLabels }, (_, i) =>
       parseFloat((minReading + step * i).toFixed(2))
     );
-    
 
     return { fahrenheitData, maxval, minval, step, customLabels };
   }, [bardata]);
 
   const data = useMemo(() => ({
-    //labels: bardata.map((_, i) => `sep${i + 1}`),
-     labels: bardata.map(item => {
-    const date = new Date(item.testDateTime);
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const month = monthNames[date.getMonth()];
-    const day = date.getDate();
-    return `${month} ${day}`;
-  }),
+    labels: bardata.map(item => {
+      const date = new Date(item.testDateTime);
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const month = monthNames[date.getMonth()];
+      const day = date.getDate();
+      return `${month} ${day}`;
+    }),
     datasets: [
       {
         label: "",
@@ -219,16 +195,52 @@ export default function Chart() {
     scales: {
       x: { ticks: { display: false } },
       y: {
+        // position: "right",
         beginAtZero: false,
         min: minval,
         max: maxval,
         ticks: {
           stepSize: step,
-          callback: value => `${value.toFixed(2)} °F`
+          callback: value => `${value.toFixed(2)} °F`,
+          display: false,
         }
       }
     }
   }), [minval, maxval, step]);
+
+  // Get Y-axis tick values from the chart
+  const getYAxisTicks = () => {
+    if (!chartRef.current?.scales?.y) return [];
+    
+    const yScale = chartRef.current.scales.y;
+    const ticks = yScale.ticks || [];
+    
+    return ticks.map(tick => ({
+      value: tick.value,
+      label: `${tick.value.toFixed(2)} °F`,
+      pixelPosition: yScale.getPixelForValue(tick.value)
+    }));
+  };
+
+  // Helper function to get pixel position for specific value
+  const yScaleForValue = (val) => {
+    return chartRef.current?.scales?.y?.getPixelForValue(val) ?? 0;
+  };
+
+  const [yAxisTicks, setYAxisTicks] = useState([]);
+  const [minRangePosition, setMinRangePosition] = useState(0);
+  const [maxRangePosition, setMaxRangePosition] = useState(0);
+
+  useEffect(() => {
+    // Update Y-axis ticks and range positions after chart renders
+    const timer = setTimeout(() => {
+      setYAxisTicks(getYAxisTicks());
+      setMinRangePosition(yScaleForValue(97));
+      setMaxRangePosition(yScaleForValue(99));
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [data, options]);
 
   return (
     <Layout>
@@ -247,45 +259,112 @@ export default function Chart() {
               </Typography>
             </Box>
 
-            {/* Chart */}
-            <Box sx={{ position: "relative", display:"flex", width: "100%", borderRadius: 3, bgcolor: "#fafafa" }}>
+            <Box
+              sx={{
+                position: "relative",
+                display: "flex",
+                width: "100%",
+                borderRadius: 3,
+                bgcolor: "#fafafa",
+              }}
+            >
+              {/* Sticky Y-Axis Labels on Right */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  left: -22,
+                  top: 16,
+                  bottom: 46,
+                  width: "80px",
+                  zIndex: 10,
+                  pointerEvents: "none",
+                }}
+              >
+                
+                {yAxisTicks.map((tick, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      position: "absolute",
+                      top: `${tick.pixelPosition}px`,                    
+                      transform: "translateY(-50%)",
+                      // backgroundColor: "rgba(255, 255, 255, 0.95)",
+                      px: 1,
+                      py: 0.5,
+                      // borderRadius: 1,
+                      fontSize: "12px",
+                      fontWeight: 300,
+                      color: "text.primary",
+                    }}
+                  >
+                    {tick.label}
+                    {console.log("the values of tick is ------->>> ", tick)}
+                  </Box>
+                ))}
+                
+              </Box>
 
+              {/* Max Range Label - Sticky on right, above max line */}
+              <Typography
+                sx={{
+                  position: "absolute",
+                  right: 22,
+                  width: "140px",
+                  background: "black",
+                  color: "white",
+                  borderRadius: "4px",
+                  px: 1,
+                  py: 0.5,
+                  fontSize: "12px",
+                  top: `${maxRangePosition - 14}px`,
+                  zIndex: 11,
+                  pointerEvents: "none",
+                }}
+              >
+                Max Range (99°F)
+              </Typography>
 
-               {/* <Box
-    sx={{
-      position: "sticky",
-      left: 0,
-      background: "#fafafa",
-      zIndex: 10,
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      padding: "16px",
-      borderRight: "1px solid #ddd"
-    }}
-  >
-    {customLabels.slice().reverse().map((label, index) => (
-      <Typography key={index} variant="body2" sx={{ lineHeight: "1.2em" }}>
-        {label} °F
-      </Typography>
-    ))}
-  </Box> */}
-
-
+              {/* Min Range Label - Sticky on right, below min line */}
+              <Typography
+                sx={{
+                  position: "absolute",
+                  right: 22,
+                  width: "140px",
+                  background: "black",
+                  color: "white",
+                  borderRadius: "4px",
+                  px: 1,
+                  py: 0.5,
+                  fontSize: "12px",
+                  top: `${minRangePosition + 20}px`,
+                  zIndex: 11,
+                  pointerEvents: "none",
+                }}
+              >
+                Min Range (97°F)
+              </Typography>
 
               <Box
                 ref={containerRef}
                 sx={{
                   overflowX: "auto",
-                  width: "100%",
+                  width: "95%",
                   p: 2,
+                  ml:4,
+                  // border:"2px solid black",
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
                   "&::-webkit-scrollbar": { display: "none" },
+                  position: "relative",
+
                 }}
               >
-                <Box sx={{ width: `${chartWidth}px`, height: 400 }}>
-                  <Bar data={data} options={options} />
+                <Box sx={{ 
+                  width: `${chartWidth}px`,
+                  height: 400,
+                  position: "relative"
+                }}>
+                  <Bar ref={chartRef} data={data} options={options} />
                 </Box>
               </Box>
             </Box>
