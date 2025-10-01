@@ -645,7 +645,7 @@ export default function EnhancedChart() {
       const newData = Array.from({ length: dataLength }, () =>
         Math.floor(Math.random() * 100 + 1)
       );
-      console.log(" new data values--- >", newData);
+      // console.log(" new data values--- >", newData);
       
       setClientData(newData);
       setIsLoading(false);
