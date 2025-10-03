@@ -33,7 +33,6 @@ const stickyLabelPlugin = {
 
     const labelCount = xAxis.ticks.length;
 
-    console.log("the values of lab---->", labelCount);
     
 
     // Dynamic skip interval based on label count
@@ -111,6 +110,12 @@ export default function Chart() {
   const chartRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+
+  useEffect(() => {
+    return () => {
+      ChartJS.unregister(rangeLinePlugin); 
+    };
+  }, []);
 
   // Resize handler
   useEffect(() => {
@@ -298,7 +303,6 @@ export default function Chart() {
                     }}
                   >
                     {tick.label}
-                    {console.log("the values of tick is ------->>> ", tick)}
                   </Box>
                 ))}
                 
@@ -364,7 +368,7 @@ export default function Chart() {
                   height: 400,
                   position: "relative"
                 }}>
-                  <Bar ref={chartRef} data={data} options={options} />
+                  <Bar ref={chartRef} data={data} options={options} plugins={[rangeLinePlugin]}  />
                 </Box>
               </Box>
             </Box>
