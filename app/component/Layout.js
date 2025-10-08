@@ -31,7 +31,10 @@ import {
   Dashboard as DashboardIcon,
   Settings as SettingsIcon,
   Notifications as NotificationsIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  ShowChart as LineChartIcon,
+  BarChart as BarChartIcon,
+  LocalHospital as PatientIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -52,7 +55,9 @@ export default function Layout({ children }) {
   const [open, setOpen] = useState(true);
   const pathname = usePathname();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
+
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -63,9 +68,12 @@ export default function Layout({ children }) {
     { label: 'Users', path: '/user', icon: <PersonIcon /> },
     { label: 'Post', path: '/post', icon: <DataIcon /> },
     { label: "Table", path: "/table", icon: <TableChartIcon /> },
-    { label: "Line Chart", path: "/linegraph", icon: <TableChartIcon /> },
-    { label: "Bar Chart", path: "/bargraph", icon: <DashboardIcon /> },
+    { label: "Line Chart", path: "/linegraph", icon: <LineChartIcon /> },
+    { label: "Bar Chart", path: "/bargraph", icon: <BarChartIcon /> },
+    { label: "Patient", path: "/patient", icon: <PatientIcon /> },
   ];
+
+  
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -87,7 +95,7 @@ export default function Layout({ children }) {
       >
         <Toolbar sx={{ justifyContent: 'space-between', px: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* <IconButton
+            <IconButton
               color="inherit"
               edge="start"
               onClick={toggleDrawer}
@@ -102,7 +110,7 @@ export default function Layout({ children }) {
               }}
             >
               {open ? <ChevronLeftIcon /> : <MenuIcon />}
-            </IconButton> */}
+            </IconButton>
             <Typography 
               variant="h6" 
               noWrap 
@@ -391,12 +399,13 @@ export default function Layout({ children }) {
       <Paper
         component="main"
         elevation={0}
-        sx={{
+      sx={{
           flexGrow: 1,
           minHeight: '100vh',
           mt: 8,
           ml: isMobile ? 0 : 0,
-          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          // background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          background: ' rgb(255, 255, 255)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           position: 'relative',
           '&::before': {
