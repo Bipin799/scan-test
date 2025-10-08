@@ -28,51 +28,19 @@ import {
   RadioGroup,
   Radio
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import PersonIcon from '@mui/icons-material/Person';
-import CheckIcon from '@mui/icons-material/Check';
-import MaleIcon from '@mui/icons-material/Male';
-import FemaleIcon from '@mui/icons-material/Female';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import LockIcon from '@mui/icons-material/Lock';
 import Layout from '../component/Layout';
 import CustomToggles from '../component/CustomToggle';
 import CustomStepper from '../component/CustomStepper';
 import ProfileStepOne from '../component/ProfileForm';
 import CustomTextField from '../component/CustomTextField';
 import GenderSelector from '../component/GenderSelector';
-import NextButton from '../component/NextButton';
+import NextButton from '../component/CustomButton';
 import BackButton from '../component/BackButton';
 import AgeSection from '../component/AgeSection';
 import WeightSelector from '../component/WeightSelector';
+import HeightSelector from '../component/HeightSelector';
+import CustomButton from '../component/CustomButton';
 
-
-// Styled Components
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: '5px',
-  // borderRadius: '20px',
-  // boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-  maxWidth: '700px',
-  margin: '0 auto',
-  [theme.breakpoints.down('sm')]: {
-    padding: '24px',
-  }
-}));
-
-
-const UnitButton = styled(Button)(({ theme, selected }) => ({
-  borderRadius: '20px',
-  padding: '10px 30px',
-  textTransform: 'none',
-  fontSize: '16px',
-  fontWeight: 600,
-  border: 'none',
-  backgroundColor: selected ? '#1976d2' : '#f0f0f0',
-  color: selected ? '#fff' : '#666',
-  '&:hover': {
-    backgroundColor: selected ? '#1565c0' : '#e0e0e0'
-  }
-}));
 
 // Indian Flag Component
 const IndianFlag = () => (
@@ -85,42 +53,6 @@ const IndianFlag = () => (
     <rect fill="#FFF" y="50" width="225" height="50" />
     <rect fill="#138808" y="100" width="225" height="50" />
     <circle fill="#000080" cx="112.5" cy="75" r="20" />
-  </Box>
-);
-
-// Weight Icon Component
-const WeightIcon = () => (
-  <Box
-    component="svg"
-    viewBox="0 0 64 64"
-    sx={{ width: 50, height: 50 }}
-    fill="none"
-    stroke="#1976d2"
-    strokeWidth="2"
-  >
-    <rect x="12" y="18" width="40" height="36" rx="4" fill="#fff" stroke="#1976d2" strokeWidth="2" />
-    <circle cx="24" cy="40" r="6" fill="none" stroke="#4dabf7" strokeWidth="2" />
-    <circle cx="40" cy="40" r="6" fill="none" stroke="#4dabf7" strokeWidth="2" />
-    <path d="M 24 34 L 24 30 M 40 34 L 40 30 M 20 30 L 44 30" stroke="#4dabf7" strokeWidth="2" />
-    <circle cx="32" cy="26" r="2" fill="#4dabf7" />
-  </Box>
-);
-
-// Height Icon Component
-const HeightIcon = () => (
-  <Box
-    component="svg"
-    viewBox="0 0 64 64"
-    sx={{ width: 50, height: 50 }}
-    fill="none"
-  >
-    <circle cx="32" cy="16" r="6" fill="none" stroke="#e91e63" strokeWidth="2" />
-    <path d="M 32 22 L 32 36" stroke="#e91e63" strokeWidth="2" />
-    <path d="M 26 28 L 32 32 L 38 28" stroke="#e91e63" strokeWidth="2" fill="none" />
-    <path d="M 28 36 L 32 40 L 36 36" stroke="#e91e63" strokeWidth="2" fill="none" />
-    <path d="M 28 40 L 32 44 L 36 40" stroke="#e91e63" strokeWidth="2" fill="none" />
-    <rect x="48" y="12" width="8" height="40" rx="1" fill="#4caf50" stroke="#4caf50" strokeWidth="1" />
-    <path d="M 48 16 L 56 16 M 48 20 L 56 20 M 48 24 L 56 24 M 48 28 L 56 28 M 48 32 L 56 32 M 48 36 L 56 36 M 48 40 L 56 40 M 48 44 L 56 44 M 48 48 L 56 48" stroke="#fff" strokeWidth="1" />
   </Box>
 );
 
@@ -296,6 +228,20 @@ export default function ProfileForm() {
     }));
   };
 
+  const handleSubmit = () => {
+    console.log("Form submitted successfully with data:", formData);
+
+    // Optionally: send formData to your backend API
+    // fetch("/api/profile", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(formData),
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => console.log("Server Response:", data))
+    //   .catch((err) => console.error("Error submitting form:", err));
+  };
+
   return (
     <Layout>
 
@@ -307,7 +253,7 @@ export default function ProfileForm() {
       {/* Stepper */}
       <CustomStepper steps={steps} activeStep={activeStep} />
 
-      <StyledPaper elevation={0}>
+      <Box elevation={0}>
 
         {activeStep === 0 && (
           <>
@@ -564,22 +510,31 @@ export default function ProfileForm() {
         {activeStep === 4 && (
           <>
             {/* Weight Header */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-              <Avatar
-                sx={{
-                  width: 100,
-                  height: 100,
-                  backgroundColor: '#e3f2fd',
-                  mb: 2,
-                  border: '4px solid #fff',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                }}
-              >
-                <WeightIcon />
-              </Avatar>
-              <Typography variant="h4" sx={{ fontWeight: 600, color: '#333' }}>
-                Weight
-              </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                // mb: 4
+              }}
+            >
+            <Avatar
+              sx={{
+                width: 100,
+                height: 100,
+                backgroundColor: "#fff",
+                mb: 1,
+                p:2,
+                boxShadow:
+                  "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
+                border: "4px solid #fff"
+              }}
+              src="/weight.svg" 
+            />
+
+            <Typography variant="h5" sx={{ fontWeight: 200, color: "#333" }}>
+              Weight
+            </Typography>
             </Box>
 
             <WeightSelector/>
@@ -589,134 +544,35 @@ export default function ProfileForm() {
         {activeStep === 5 && (
           <>
             {/* Height Header */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-              <Avatar
-                sx={{
-                  width: 100,
-                  height: 100,
-                  backgroundColor: '#fce4ec',
-                  mb: 2,
-                  border: '4px solid #fff',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                }}
-              >
-                <HeightIcon />
-              </Avatar>
-              <Typography variant="h4" sx={{ fontWeight: 600, color: '#333' }}>
-                Height
-              </Typography>
+             <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                // mb: 4
+              }}
+            >
+            <Avatar
+              sx={{
+                width: 100,
+                height: 100,
+                backgroundColor: "#fff",
+                mb: 1,
+                p:2,
+                boxShadow:
+                  "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
+                border: "4px solid #fff"
+              }}
+              src="/height.svg" 
+            />
+
+            <Typography variant="h5" sx={{ fontWeight: 200, color: "#333" }}>
+              Height
+            </Typography>
             </Box>
 
-            {/* Unit Toggle Buttons */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mb: 4 }}>
-              <UnitButton
-                selected={formData.heightUnit === 'cm'}
-                onClick={() => handleHeightUnitChange('cm')}
-              >
-                Cm
-              </UnitButton>
-              <UnitButton
-                selected={formData.heightUnit === 'inch'}
-                onClick={() => handleHeightUnitChange('inch')}
-              >
-                Inch
-              </UnitButton>
-            </Box>
+            <HeightSelector/>
 
-            {/* Height Input Display */}
-            <Box sx={{ mb: 4 }}>
-              <CustomTextField
-                fullWidth
-                value={formData.height}
-                InputProps={{
-                  readOnly: true,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Typography sx={{ color: '#666', fontWeight: 500 }}>
-                        {formData.heightUnit}
-                      </Typography>
-                    </InputAdornment>
-                  )
-                }}
-                sx={{
-                  '& input': {
-                    fontSize: '20px',
-                    fontWeight: 600,
-                    color: '#333',
-                    textAlign: 'left'
-                  }
-                }}
-              />
-            </Box>
-
-            {/* Height Value Display Above Slider */}
-            <Box sx={{ textAlign: 'center', mb: 1 }}>
-              <Typography variant="h5" sx={{ fontWeight: 600, color: '#333' }}>
-                {formData.height.toFixed(2)}
-              </Typography>
-            </Box>
-
-            {/* Height Slider */}
-            <Box sx={{ px: 2, mb: 2 }}>
-              <Slider
-                value={formData.height}
-                onChange={handleHeightChange}
-                min={formData.heightUnit === 'cm' ? 0 : 0}
-                max={formData.heightUnit === 'cm' ? 250 : 98}
-                step={formData.heightUnit === 'cm' ? 0.1 : 0.1}
-                marks={
-                  formData.heightUnit === 'cm'
-                    ? [
-                        { value: 0, label: '0.00' },
-                        { value: 5, label: '5.00' },
-                        { value: 10, label: '10.00' },
-                        { value: 15, label: '15.00' }
-                      ]
-                    : [
-                        { value: 0, label: '0.00' },
-                        { value: 2, label: '2.00' },
-                        { value: 4, label: '4.00' },
-                        { value: 6, label: '6.00' }
-                      ]
-                }
-                sx={{
-                  color: '#1976d2',
-                  height: 8,
-                  '& .MuiSlider-thumb': {
-                    height: 24,
-                    width: 24,
-                    backgroundColor: '#1976d2',
-                    border: '4px solid #fff',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                    '&:hover': {
-                      boxShadow: '0 0 0 8px rgba(25, 118, 210, 0.16)'
-                    }
-                  },
-                  '& .MuiSlider-track': {
-                    border: 'none',
-                    height: 8
-                  },
-                  '& .MuiSlider-rail': {
-                    opacity: 0.3,
-                    backgroundColor: '#bfbfbf',
-                    height: 8
-                  },
-                  '& .MuiSlider-mark': {
-                    backgroundColor: '#333',
-                    height: 16,
-                    width: 2,
-                    '&.MuiSlider-markActive': {
-                      backgroundColor: '#333'
-                    }
-                  },
-                  '& .MuiSlider-markLabel': {
-                    fontSize: '12px',
-                    color: '#666',
-                    top: 35
-                  }
-                }}
-              />
-            </Box>
           </>
         )} 
 
@@ -827,16 +683,22 @@ export default function ProfileForm() {
           >
             Back
           </BackButton>
-          <NextButton
-            variant="contained"
-            onClick={handleNext}
-            disabled={activeStep === steps.length - 1}
-          >
-            Next
-          </NextButton>
+
+          {activeStep === steps.length - 1 ? (
+            <CustomButton
+              onClick={handleSubmit}
+              label="Submit"
+            />
+          ) : (
+            <CustomButton
+              onClick={handleNext}
+              label="Next"
+            />
+          )}
+          
         </Box>
 
-      </StyledPaper>
+      </Box>
 
     </Container>
 

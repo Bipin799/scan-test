@@ -48,10 +48,17 @@ export default function WeightSelector() {
         <ToggleButton
           value="kg"
           sx={{
-            textTransform: "none",
+              textTransform: "none",
             border: "none",
             padding: "10px 30px",
             fontWeight: "bold",
+            "&.Mui-selected": {
+              backgroundColor: "#1976d2",
+              color: "#fff",
+            },
+            "&.Mui-selected:hover": {
+              backgroundColor: "#1565c0",
+            },
           }}
         >
           Kg
@@ -59,10 +66,17 @@ export default function WeightSelector() {
         <ToggleButton
           value="lbs"
           sx={{
-            textTransform: "none",
+              textTransform: "none",
             border: "none",
             padding: "10px 30px",
             fontWeight: "bold",
+            "&.Mui-selected": {
+              backgroundColor: "#1976d2",
+              color: "#fff",
+            },
+            "&.Mui-selected:hover": {
+              backgroundColor: "#1565c0",
+            },
           }}
         >
           Lbs
@@ -82,7 +96,7 @@ export default function WeightSelector() {
           id="weight"
           name="weight"
           placeholder="0"
-          type="number"
+          type="tel"
           value={weight}
           onChange={handleWeightChange}
           InputProps={{
@@ -93,7 +107,7 @@ export default function WeightSelector() {
             ),
           }}
           sx={{
-            width: "150px",
+            width: "250px",
             "& .MuiOutlinedInput-root": {
               fontWeight: 400,
               fontFamily: "Nunito, sans-serif",
@@ -106,7 +120,7 @@ export default function WeightSelector() {
         />
 
         {/* Ruler Marks */}
-        <Box sx={{ display: "flex", gap: "5px" }}>
+        {/* <Box sx={{ display: "flex", gap: "5px" }}>
           {rulerMarks.map((mark, index) => (
             <Box
               key={index}
@@ -138,7 +152,7 @@ export default function WeightSelector() {
               />
             </Box>
           ))}
-        </Box>
+        </Box> */}
 
       </Box>
     </Box>

@@ -9,9 +9,9 @@ export default function Loader() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh", 
+        height: "100vh",
         width: "100%",
-        background: "rgba(255, 255, 255, 0.6)", 
+        background: "rgba(255, 255, 255, 0.6)",
       }}
     >
       <CircularProgress

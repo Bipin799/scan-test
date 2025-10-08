@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@mui/material";
 
-export default function NextButton({ onClick, disabled }) {
+export default function CustomButton({ onClick, disabled, label = "Next" }) {
   return (
     <Button
       variant="contained"
@@ -29,7 +29,8 @@ export default function NextButton({ onClick, disabled }) {
           "background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
-      Next
+      {/* Next */}
+      {label}
     </Button>
   );
 }

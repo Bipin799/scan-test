@@ -189,8 +189,20 @@ const theme = createTheme({
         },
       },
     },
-},
-
+    },
+    
+    //  MuiPaper: {
+    //   styleOverrides: {
+    //     root: {
+    //       padding: '5px',
+    //       maxWidth: '700px',
+    //       margin: '0 auto',
+    //       '@media (max-width:600px)': {
+    //         padding: '24px',
+    //       },
+    //     },
+    //   },
+    // },
       
   },
 });
