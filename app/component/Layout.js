@@ -76,7 +76,7 @@ export default function Layout({ children }) {
   
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '50vh', }}>
       <CssBaseline />
 
       {/* AppBar */}
@@ -93,18 +93,19 @@ export default function Layout({ children }) {
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', px: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Toolbar sx={{ justifyContent: 'space-between', px: 3,  }}>
+          <Box sx={{ display: 'flex', alignItems: 'center'}}>
             <IconButton
               color="inherit"
               edge="start"
               onClick={toggleDrawer}
               sx={{ 
                 mr: 2,
+                mb:2,
                 background: 'rgba(255, 255, 255, 0.1)',
                 borderRadius: 2,
                 '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.2)',
+                  background: 'rgba(255,`255, 255, 0.2)',
                   transform: 'scale(1.05)',
                 }
               }}
@@ -118,7 +119,8 @@ export default function Layout({ children }) {
               sx={{ 
                 fontWeight: 700,
                 fontSize: '1.5rem',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                pb:2,
               }}
             >
               My Dashboard
@@ -405,7 +407,7 @@ export default function Layout({ children }) {
           mt: 8,
           ml: isMobile ? 0 : 0,
           // background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-          background: ' rgb(255, 255, 255)',
+          background: ' rgba(247, 241, 241, 1)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           position: 'relative',
           '&::before': {

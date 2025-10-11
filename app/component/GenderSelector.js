@@ -1,127 +1,9 @@
-// "use client";
-
-// import { useState } from "react";
-// import Image from "next/image";
-// import { Box, Grid, Avatar, Typography, Button } from "@mui/material";
-// import MaleIcon from "../../public/male.svg";
-// import MaleDisable from "../../public/maleDisable.svg";
-// import FemaleIcon from "../../public/female.svg";
-// import FemaleDisableIcon from "../../public/femaleDisable.png";
-// import LGBTQIcon from "../../public/lgbtq.webp";
-// import LGBTQDisableIcon from "../../public/lgbtqDisable.svg";
-// import NotSayIcon from "../../public/notTosay.svg";
-// import NotSayDisableIcon from "../../public/notTosayDisable.svg";
-// // import GenderAvatar from "@/public/gender.svg";
-
-// const genders = [
-//   {
-//     label: "Male",
-//     icon: MaleIcon,
-//     disabledIcon: MaleDisable,
-//   },
-//   {
-//     label: "Female",
-//     icon: FemaleIcon,
-//     disabledIcon: FemaleDisableIcon,
-//   },
-//   {
-//     label: "LGBTQIA+",
-//     icon: LGBTQIcon,
-//     disabledIcon: LGBTQDisableIcon,
-//   },
-//   {
-//     label: "Prefer not to say",
-//     icon: NotSayIcon,
-//     disabledIcon: NotSayDisableIcon,
-//   },
-// ];
-
-// export default function GenderSelector() {
-//   const [selectedGender, setSelectedGender] = useState("Male");
-
-//   return (
-//     <Box sx={{ p: 3 }}>
-//       <Grid container spacing={1} justifyContent="center">
-//         {genders.map((item) => {
-//           const isSelected = selectedGender === item.label;
-//           return (
-//             <Grid item xs={6} key={item.label}>
-//               <Button
-//                 fullWidth
-//                 variant={isSelected ? "contained" : "outlined"}
-//                 color="primary"
-//                 onClick={() => setSelectedGender(item.label)}
-//                 sx={{
-//                   flexDirection: "column",
-//                   py: 2,
-//                   borderRadius: 2,
-//                   textTransform: "none",
-//                   height: "90%",
-//                   width:"200px",
-//                   display: "flex",
-//                   backgroundColor: isSelected ? "primary.main" : "transparent",
-//                 }}
-//               >
-//                 <Box
-//                   sx={{
-//                     position: "relative",
-//                     width: { xs: 10, sm: 80 },
-//                     height: { xs: 65, sm: 85 },
-//                     mb: 1,
-//                   }}
-//                 >
-//                   <Image
-//                     src={isSelected ? item.icon : item.disabledIcon}
-//                     alt={item.label}
-//                     fill
-//                     style={{
-//                       objectFit: "contain",
-//                       opacity: isSelected ? 1 : 0.5,
-//                     }}
-//                   />
-//                 </Box>
-
-//                 <Typography
-//                   variant="body1"
-//                   sx={{
-//                     mt: 1,
-//                     fontWeight: isSelected ? 600 : 400,
-//                     color: isSelected ? "white" : "text.primary",
-//                   }}
-//                 >
-//                   {item.label}
-//                 </Typography>
-//               </Button>
-//             </Grid>
-//           );
-//         })}
-//       </Grid>
-//     </Box>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
-import { Box, Grid, Typography, Button } from "@mui/material";
+import { Box, Grid, Typography, Button, FormHelperText } from "@mui/material";
 
 import MaleIcon from "../../public/male.svg";
 import MaleDisable from "../../public/maleDisable.svg";
@@ -133,38 +15,57 @@ import NotSayIcon from "../../public/notTosay.svg";
 import NotSayDisableIcon from "../../public/notTosayDisable.svg";
 
 const genders = [
-  { label: "Male", icon: MaleIcon, disabledIcon: MaleDisable },
-  { label: "Female", icon: FemaleIcon, disabledIcon: FemaleDisableIcon },
-  { label: "LGBTQIA+", icon: LGBTQIcon, disabledIcon: LGBTQDisableIcon },
-  { label: "Prefer not to say", icon: NotSayIcon, disabledIcon: NotSayDisableIcon },
+  { label: "Male", value: "male", icon: MaleIcon, disabledIcon: MaleDisable },
+  { label: "Female", value: "female", icon: FemaleIcon, disabledIcon: FemaleDisableIcon },
+  { label: "LGBTQIA+", value: "LGBTQIA+", icon: LGBTQIcon, disabledIcon: LGBTQDisableIcon },
+  { label: "Prefer not to say", value: "prefer_not_to_say", icon: NotSayIcon, disabledIcon: NotSayDisableIcon },
 ];
 
-export default function GenderSlector() {
-  const [selectedGender, setSelectedGender] = useState("Male");
-  const [isPregnant, setIsPregnant] = useState(false);
+export default function GenderSelector({ value, onChange, onPregnantChange, error, isPregnant, setFieldValue }) {
+
+  const handleGenderClick = (genderValue) => {
+    setFieldValue("gender", genderValue);
+
+    // Reset pregnancy if gender changes
+    if (genderValue !== "female") {
+      setFieldValue("isPregnant", false);
+    }
+  };
+
+  const handlePregnantToggle = () => {
+    setFieldValue("isPregnant", !isPregnant);
+  };
+
 
   return (
-    <Box sx={{ p: 3  }}>
+    <Box sx={{ p: 3 }}>
       {/* Gender Selection */}
+
+      {/* Error Message */}
+      {error && (
+        <FormHelperText error sx={{ textAlign: "center", }}>
+          {error}
+        </FormHelperText>
+      )}
+
       <Grid container spacing={0} justifyContent="center">
         {genders.map((item) => {
-          const isSelected = selectedGender === item.label;
+          const isSelected = value === item.value;
 
           return (
             <Grid
               item
               xs={6}
-              key={item.label}
+              key={item.value}
               sx={{
                 display: "flex",
                 justifyContent: "center",
                 flexBasis: "50%",
                 maxWidth: "50%",
-                // border:"2px solid black",
               }}
             >
               <Button
-                onClick={() => setSelectedGender(item.label)}
+                onClick={() => handleGenderClick(item.value)}
                 variant="outlined"
                 sx={{
                   width: "230px",
@@ -176,17 +77,17 @@ export default function GenderSlector() {
                   justifyContent: "center",
                   background: "#f4fbff",
                   borderRadius: "5%",
-                  // border: "none",
                   textTransform: "none",
                   fontFamily: "Nunito, sans-serif",
-                  fontWeight: 400,
+                  fontWeight: 200,
                   fontSize: "1rem",
-                  lineHeight: 1.5,
+                  lineHeight: 1,
                   color: "rgba(0,0,0,0.87)",
                   boxShadow: isSelected
                     ? "4px 2px 8px 0px rgba(95, 157, 231, 0.48) inset, -4px -2px 8px 0px #FFF"
                     : "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px",
-                  borderColor: isSelected ? "2px solid #007BFF" : "transparent",
+                  borderColor: isSelected ? "#007BFF" : "transparent",
+                  borderWidth: isSelected ? "2px" : "1px",
                   transition: "all 0.3s ease-in-out",
                 }}
               >
@@ -206,8 +107,10 @@ export default function GenderSlector() {
                   variant="body1"
                   sx={{
                     mt: 1,
-                    fontWeight: isSelected ? 600 : 400,
-                    color: isSelected ? "#1976d2" : "inherit",
+                    // fontWeight: isSelected ? 600 : 400,
+                    forntWeight: 200,
+                    // color: isSelected ? "#1976d2" : "inherit",
+                    color: "#1976d2",
                   }}
                 >
                   {item.label}
@@ -218,13 +121,14 @@ export default function GenderSlector() {
         })}
       </Grid>
 
+      
+
       {/* Custom "Are you pregnant?" toggle */}
-      {selectedGender === "Female" && (
+      {value === "female" && (
         <Box
           sx={{
             mt: 2,
             padding: "10px",
-            // width:"100% !important",
             borderRadius: "20px",
             boxShadow:
               "4px 2px 8px 0px rgba(95, 157, 231, 0.48) inset, -4px -2px 8px 0px #FFF",
@@ -232,7 +136,6 @@ export default function GenderSlector() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            // width: "fit-content",
             fontFamily: "Nunito, sans-serif",
             fontSize: "1rem",
             fontWeight: 400,
@@ -254,7 +157,7 @@ export default function GenderSlector() {
               type="checkbox"
               id="isPregnant"
               checked={isPregnant}
-              onChange={() => setIsPregnant((prev) => !prev)}
+              onChange={handlePregnantToggle}
               style={{ display: "none" }}
             />
             <label
@@ -333,4 +236,3 @@ export default function GenderSlector() {
     </Box>
   );
 }
-

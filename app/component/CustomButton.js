@@ -1,10 +1,11 @@
 import React from "react";
 import { Button } from "@mui/material";
 
-export default function CustomButton({ onClick, disabled, label = "Next" }) {
+export default function CustomButton({ onClick, disabled, label, type = "button" }) {
   return (
     <Button
       variant="contained"
+      type= {type} //  props passed
       onClick={onClick}
       disabled={disabled}
       sx={{

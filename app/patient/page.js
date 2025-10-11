@@ -1,7 +1,9 @@
+
+
 // ProfileForm.jsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -12,42 +14,35 @@ import {
   Button,
   Typography,
   Avatar,
-  Stepper,
-  Step,
-  StepLabel,
   InputAdornment,
   FormControlLabel,
-  Switch,
-  Paper,
-  Card,
-  CardContent,
   Grid,
-  Slider,
-  ButtonGroup,
-  FormLabel,
   RadioGroup,
-  Radio
+  Radio,
+  FormHelperText
 } from '@mui/material';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
 import Layout from '../component/Layout';
 import CustomToggles from '../component/CustomToggle';
 import CustomStepper from '../component/CustomStepper';
-import ProfileStepOne from '../component/ProfileForm';
 import CustomTextField from '../component/CustomTextField';
 import GenderSelector from '../component/GenderSelector';
-import NextButton from '../component/CustomButton';
 import BackButton from '../component/BackButton';
 import AgeSection from '../component/AgeSection';
 import WeightSelector from '../component/WeightSelector';
 import HeightSelector from '../component/HeightSelector';
 import CustomButton from '../component/CustomButton';
-
+import { debounce } from 'lodash';
+import axios from 'axios';
+import StepHeader from '../component/StepHeader';
 
 // Indian Flag Component
 const IndianFlag = () => (
   <Box
     component="svg"
     viewBox="0 0 225 150"
-    sx={{ width: 30, height: 20, mr: 1 }}
+    sx={{ width: 30, height: 20, mr: 1, }}
   >
     <rect fill="#FF9933" width="225" height="50" />
     <rect fill="#FFF" y="50" width="225" height="50" />
@@ -56,87 +51,132 @@ const IndianFlag = () => (
   </Box>
 );
 
+const validationSchemas = [
+  // Step 0 - Personal Info
+  Yup.object({
+    title: Yup.string().required('Title is required'),
+    phoneNumber: Yup.string()
+      // .matches(/^[0-9]{10}$/, 'Please enter a valid mobile number')
+      .matches(/^\d{5}-\d{5}$/, 'Please enter a valid mobile number')
+      .required('Please Enter Phone Number'),
+    firstName: Yup.string()
+      .min(2, 'First name must be at least 2 characters')
+      .max(20, 'First name must be less than 50 characters')
+      .matches(/^[A-Za-z]+$/, 'Only alphabets are allowed')
+      .required('First name is required'),
+    lastName: Yup.string()
+      .min(2, 'Last name must be at least 2 characters')
+      .max(20, 'Last name must be less than 50 characters')
+      .matches(/^[A-Za-z]+$/, 'Only alphabets are allowed')
+      .required('Last name is required'),
+  }),
+  // Step 1 - Address
+  Yup.object({
+    addressType: Yup.string().required('Address type is required'),
+
+    
+    zipCode: Yup.string()
+      .matches(/^[0-9]{6}$/, 'Invalid Zipcode')
+      .required('ZIP code is required'),
+
+
+
+
+
+    // city: Yup.string()
+    //   .min(2, 'City must be at least 2 characters')
+    //   .required('City is required'),
+    // state: Yup.string()
+    //   .min(2, 'State must be at least 2 characters')
+    //   .required('State is required'),
+    // country: Yup.string()
+    //   .min(2, 'Country must be at least 2 characters')
+    //   .required('Country is required'),
+    address1: Yup.string()
+      .min(5, 'Address must be at least 5 characters')
+      .required('Address 1 is required'),
+    address2: Yup.string(),
+  }),
+  // Step 2 - Gender
+  Yup.object({
+    gender: Yup.string()
+      .oneOf(['male', 'female', 'LGBTQIA+','prefer_not_to_say'], 'Please select a valid gender')
+      .required('Gender is required'),
+  }),
+  // Step 3 - Age
+  Yup.object({
+    birthdate: Yup.date()
+      .max(new Date(), 'Birthdate cannot be in the future')
+      .required('Birthdate is required'),
+    age: Yup.number()
+      .min(0, 'Age must be positive')
+      .max(125, 'Please enter a valid age')
+      .required('Age is required'),
+  }),
+  // Step 4 - Weight
+  Yup.object({
+    weight: Yup.number()
+      .transform((value) => (isNaN(value) ? 0 : value))
+      .when('weightUnit', ([weightUnit], schema) => {
+        return weightUnit === 'kg'
+          ? schema.min(1, 'Weight must be at least 1 kg').max(300, 'Max 300 kg allowed')
+          : schema.min(1, 'Weight must be at least 1 lb').max(661, 'Max 661 lbs allowed');
+      })
+      .required('Weight is required'),
+    weightUnit: Yup.string().oneOf(['kg', 'lbs']).required(),
+  }),
+
+  // Step 5 - Height
+  Yup.object({
+    height: Yup.number()
+      .transform((value) => (isNaN(value) ? 0 : value))
+      .when('heightUnit', ([heightUnit], schema) => {
+        return heightUnit === 'cm'
+          ? schema.min(1, 'Height must be at least 1 cm').max(300, 'Max 300 cm allowed')
+          : schema.min(1, 'Height must be at least 1 inch').max(118, 'Max 118 inches allowed');
+      })
+      .required('Height is required'),
+    heightUnit: Yup.string().oneOf(['cm', 'inch']).required(),
+  }),
+
+  // Step 6 - Blood Group
+  Yup.object({
+    bloodGroup: Yup.string()
+      .oneOf(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'unknown'], 'Please select a valid blood group')
+      .required('Blood group is required'),
+  }),
+];
+
+const initialValues = {
+  title: 'Mr.',
+  phoneNumber: '',
+  firstName: '',
+  lastName: '',
+  isMarried: false,
+  hasDiabetes: false,
+  hasHypertension: false,
+  isPregnant: false, 
+  addressType: 'Register',
+  zipCode: '',
+  city: '',
+  state: '',
+  country: '',
+  address1: '',
+  address2: '',
+  gender: '',
+  birthdate: '',
+  age: '',
+  weightUnit: 'kg',
+  weight: '0',
+  heightUnit: 'cm',
+  height: '0',
+  bloodGroup: '',
+};
+
 // Main Component
 export default function ProfileForm() {
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState({
-    title: 'Mr.',
-    phoneNumber:"",
-    firstName: '',
-    lastName: '',
-    isMarried: false,
-    hasDiabetes: false,
-    hasHypertension: false,
-    addressType: 'Register',
-    zipCode: '',
-    city: '',
-    state: '',
-    country: '',
-    address1: '',
-    address2: '',
-    gender: '',
-    birthdate: '',
-    age: '',
-    weightUnit: 'kg',
-    weight: 50,
-    heightUnit: 'cm',
-    height: 2,
-    bloodGroup: "",
-  });
-
-  const [errors, setErrors] = useState({
-    zipCode: false
-  });
-
   const steps = ['1', '2', '3', '4', '5', '6', '7'];
-
-  const validateStep = () => {
-    if (activeStep === 1) {
-      if (!formData.zipCode) {
-        setErrors({ zipCode: true });
-        return false;
-      }
-    }
-    return true;
-  };
-
-  const handleNext = () => {
-    if (validateStep() && activeStep < steps.length - 1) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      setErrors({ zipCode: false });
-    }
-  };
-
-  const handleBack = () => {
-    if (activeStep > 0) {
-      setActiveStep((prevActiveStep) => prevActiveStep - 1);
-      setErrors({ zipCode: false });
-    }
-  };
-
-  const handleTitleChange = (event) => {
-    setFormData({
-      ...formData,
-      title: event.target.value
-    });
-  };
-
-  const handleAddressTypeChange = (event) => {
-    setFormData({
-      ...formData,
-      addressType: event.target.value
-    });
-  };
-
-  const handleInputChange = (field) => (event) => {
-    setFormData({
-      ...formData,
-      [field]: event.target.value
-    });
-    if (field === 'zipCode' && errors.zipCode) {
-      setErrors({ zipCode: false });
-    }
-  };
 
   const calculateAge = (birthdate) => {
     const today = new Date();
@@ -151,557 +191,496 @@ export default function ProfileForm() {
     return age;
   };
 
-  const handleBirthdateChange = (event) => {
-    const birthdate = event.target.value;
-    const calculatedAge = birthdate ? calculateAge(birthdate) : '';
+  const handleNext = async (validateForm, values, setTouched) => {
+    // console.log("handle next is called", validateForm);
     
-    setFormData({
-      ...formData,
-      birthdate: birthdate,
-      age: calculatedAge
-    });
-  };
-
-  const handleAgeChange = (event) => {
-    setFormData({
-      ...formData,
-      age: event.target.value
-    });
-  };
-
-  const handleWeightUnitChange = (unit) => {
-    let convertedWeight = formData.weight;
+    // Validate current step
+    const errors = await validateForm();
     
-    if (unit === 'lbs' && formData.weightUnit === 'kg') {
-      convertedWeight = Math.round(formData.weight * 2.20462);
-    } else if (unit === 'kg' && formData.weightUnit === 'lbs') {
-      convertedWeight = Math.round(formData.weight / 2.20462);
+    // Get fields for current step
+    const stepFields = Object.keys(validationSchemas[activeStep].fields);
+    
+    // Mark fields as touched
+    const touchedFields = {};
+    stepFields.forEach(field => {
+      touchedFields[field] = true;
+    });
+    setTouched(touchedFields);
+    
+    // Check if current step has errors
+    const hasStepErrors = stepFields.some(field => errors[field]);
+    
+    if (!hasStepErrors && activeStep < steps.length - 1) {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
-    
-    setFormData({
-      ...formData,
-      weightUnit: unit,
-      weight: convertedWeight
-    });
   };
 
-  const handleWeightChange = (event, newValue) => {
-    setFormData({
-      ...formData,
-      weight: newValue
-    });
-  };
-
-  const handleHeightUnitChange = (unit) => {
-    let convertedHeight = formData.height;
-    
-    if (unit === 'inch' && formData.heightUnit === 'cm') {
-      convertedHeight = Math.round((formData.height / 2.54) * 10) / 10;
-    } else if (unit === 'cm' && formData.heightUnit === 'inch') {
-      convertedHeight = Math.round(formData.height * 2.54 * 10) / 10;
+  const handleBack = () => {
+    if (activeStep > 0) {
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
     }
+  };
+
+  const handleSubmit = (values, { setSubmitting }) => {
+    console.log("Form submitted successfully with data:", values);
     
-    setFormData({
-      ...formData,
-      heightUnit: unit,
-      height: convertedHeight
-    });
-  };
-
-  const handleHeightChange = (event, newValue) => {
-    setFormData({
-      ...formData,
-      height: newValue
-    });
-  };
-
-  const handleChange = (e) => {
-    // Allow only numbers
-    const value = e.target.value.replace(/\D/g, "");
-    setPhone(value);
-  };
-
-  const handleBloodGroupChange = (event) => {
-    setFormData((prev) => ({
-      ...prev,
-      bloodGroup: event.target.value,
-    }));
-  };
-
-  const handleSubmit = () => {
-    console.log("Form submitted successfully with data:", formData);
-
     // Optionally: send formData to your backend API
     // fetch("/api/profile", {
     //   method: "POST",
     //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(formData),
+    //   body: JSON.stringify(values),
     // })
     //   .then((res) => res.json())
-    //   .then((data) => console.log("Server Response:", data))
-    //   .catch((err) => console.error("Error submitting form:", err));
+    //   .then((data) => {
+    //     console.log("Server Response:", data);
+    //     setSubmitting(false);
+    //   })
+    //   .catch((err) => {
+    //     console.error("Error submitting form:", err);
+    //     setSubmitting(false);
+    //   });
+    
+    setSubmitting(true);
   };
+
+  const fetchLocationDetails = async (zipCode) => {
+    try {
+      const response = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
+      const data = response.data;
+
+      if (data && data[0]?.Status === "Success" && data[0]?.PostOffice?.[0]) {
+        const { District, State } = data[0].PostOffice[0];
+        return { city: District, state: State, country: "India", valid: true };
+      } else {
+        return { city: "", state: "", country: "", valid: false };
+      }
+    } catch (error) {
+      console.error("Error fetching location details:", error);
+      return { city: "", state: "", country: "", valid: false };
+    }
+  };
+
+  const debouncedFetchLocation = debounce(
+    async (zipCode, setFieldValue, setFieldError) => {
+      const location = await fetchLocationDetails(zipCode);
+
+      if (location.valid) {
+        setFieldValue("city", location.city);
+        setFieldValue("state", location.state);
+        setFieldValue("country", location.country);
+        setFieldError("zipCode", "");
+      } else {
+        setFieldValue("city", "");
+        setFieldValue("state", "");
+        setFieldValue("country", "");
+        setFieldError("zipCode", "Invalid ZIP code");
+      }
+    },
+    500
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedFetchLocation.cancel();
+    };
+  }, [debouncedFetchLocation]);
 
   return (
     <Layout>
+      <Container
+        sx={{
+            background: "rgba(255, 255, 255, 255)",           
+            borderRadius: "15px",         
+            boxShadow: "0px 4px 20px rgba(0,0,0,0.05)", 
+                
+          }}
+        >
+      <Box maxWidth="sm" sx={{ py: 3,  mx: "auto",  }}>
+        <CustomStepper steps={steps} activeStep={activeStep} />
 
-    <Container maxWidth="sm" 
-      sx={{
-        py: 6
-        }}>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchemas[activeStep]}
+          onSubmit={handleSubmit}
+          validateOnChange={true}
+          validateOnBlur={true}
+        >
+          {({ values, errors, touched,setFieldError,setFieldTouched, handleChange, handleBlur, setFieldValue, validateForm, setTouched, isSubmitting, setSubmitting }) => (
+            <Form>
+              <Box elevation={0}>
+                {activeStep === 0 && (
+                  <>
+                    <StepHeader src="/profile.svg" title="Profile" />
+                    <Box sx={{ mb: 3 }}>
+                      <TextField
+                        fullWidth
+                        name="phoneNumber"
+                        value={values.phoneNumber}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, '');
+                          if (value.length > 10) value = value.slice(0, 10);
+                          if (value.length > 5) {
+                            value = value.slice(0, 5) + '-' + value.slice(5);
+                          }
 
-      {/* Stepper */}
-      <CustomStepper steps={steps} activeStep={activeStep} />
+                          setFieldValue('phoneNumber', value);
+                        }}
+                        onBlur={handleBlur}
+                        error={touched.phoneNumber && Boolean(errors.phoneNumber)}
+                        helperText={touched.phoneNumber && errors.phoneNumber}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <IndianFlag /> +91
+                            </InputAdornment>
+                          ),
+                        }}
+                        // placeholder="Please Enter The Number "
+                      />
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                      <FormControl sx={{ minWidth: 120 }} error={touched.title && Boolean(errors.title)}>
+                        <Select
+                          name="title"
+                          value={values.title}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        >
+                          <MenuItem value="Mr.">Mr.</MenuItem>
+                          <MenuItem value="Miss.">Miss.</MenuItem>
+                          <MenuItem value="Mrs.">Mrs.</MenuItem>
+                          <MenuItem value="Ms.">Ms.</MenuItem>
+                          <MenuItem value="Baby">Baby</MenuItem>
+                          <MenuItem value="Dr.">Dr.</MenuItem>
+                          <MenuItem value="Master">Master</MenuItem>
+                        </Select>
+                        {touched.title && errors.title && (
+                          <FormHelperText>{errors.title}</FormHelperText>
+                        )}
+                      </FormControl>
 
-      <Box elevation={0}>
+                      <TextField
+                        fullWidth
+                        name="firstName"
+                        placeholder="First Name*"
+                        value={values.firstName}
+                        // onChange={handleChange}
+                         onChange={(e) => {
+                          // Allow only letters (A–Z, a–z)
+                          const value = e.target.value.replace(/[^A-Za-z]/g, '');
+                          setFieldValue('firstName', value);
+                        }}
+                        onBlur={handleBlur}
+                        error={touched.firstName && Boolean(errors.firstName)}
+                        helperText={touched.firstName && errors.firstName}
+                      />
+                    </Box>
+                    <Box sx={{ mb: 4 }}>
+                      <CustomTextField
+                        fullWidth
+                        name="lastName"
+                        placeholder="Last Name*"
+                        value={values.lastName}
+                        // onChange={handleChange}
+                        onChange={(e)=>{
+                          const value  = e.target.value.replace(/[^A-Za-z]/g, '');
+                          setFieldValue('lastName',value);
+                        }}
+                        onBlur={handleBlur}
+                        error={touched.lastName && Boolean(errors.lastName)}
+                        helperText={touched.lastName && errors.lastName}
+                      />
+                    </Box>
+                    <CustomToggles values={values} setFieldValue={setFieldValue} />
+                  </>
+                )}
 
-        {activeStep === 0 && (
-          <>
-          <ProfileStepOne
-            formData={formData}
-            handleTitleChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
-            handleInputChange={(field) => (e) =>
-              setFormData({ ...formData, [field]: e.target.value })}
-          />
+                {activeStep === 1 && (
+                  <>
+                    <StepHeader src="/address.svg" title="Address" />
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="caption" sx={{ color: '#333', mb: 0.5, display: 'block', pl: 1 }}>
+                        Select Address Type*
+                      </Typography>
+                      <FormControl fullWidth error={touched.addressType && Boolean(errors.addressType)}>
+                        <Select
+                          name="addressType"
+                          value={values.addressType}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        >
+                          <MenuItem value="Register">Register</MenuItem>
+                          <MenuItem value="Primary">Primary</MenuItem>
+                          <MenuItem value="Secondary">Secondary</MenuItem>
+                        </Select>
+                        {touched.addressType && errors.addressType && (
+                          <FormHelperText>{errors.addressType}</FormHelperText>
+                        )}
+                      </FormControl>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                      <Box sx={{ flex: 1 }}>
+                        <TextField
+                          fullWidth
+                          name="zipCode"
+                          placeholder="ZipCode*"
+                          value={values.zipCode}
+                          onChange={async (e) => {
+                            let value = e.target.value.replace(/\D/g, "");
+                            if (value.length > 6) value = value.slice(0, 6);
 
-            <Box sx={{ mb: 3 }}>        
-              <TextField
-                  fullWidth
-                  value={formData.phoneNumber || ""}
-                  onChange={handleInputChange("phoneNumber")}
-                  // onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">    
-                        <IndianFlag />  +91&nbsp;
-                      </InputAdornment>
-                    )
-                  }}
-                />           
-            </Box>
+                            setFieldValue("zipCode", value);
+                            setFieldTouched("zipCode", true);
 
-          <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-            <FormControl sx={{ minWidth: 120 }}>
-              <Select
-                value={formData.title}
-                onChange={handleTitleChange}
-                displayEmpty
-                variant="outlined"
-              >
-                <MenuItem value="Mr.">Mr.</MenuItem>
-                <MenuItem value="Miss.">Miss.</MenuItem>
-                <MenuItem value="Mrs.">Mrs.</MenuItem>
-                <MenuItem value="Ms.">Ms.</MenuItem>
-                <MenuItem value="Baby">Baby</MenuItem>
-                <MenuItem value="Dr.">Dr.</MenuItem>
-                <MenuItem value="Master">Master</MenuItem>
-              </Select>
-            </FormControl>
+                            if (value.length === 6) {
+                              const location = await fetchLocationDetails(value);
 
-            <TextField
-              fullWidth
-              placeholder="First Name*"
-              value={formData.firstName}
-              onChange={handleInputChange("firstName")}
-            />
-          </Box>
-
-          <Box sx={{ mb: 4 }}>
-            <CustomTextField
-              fullWidth
-              value={formData.lastName}
-              onChange={handleInputChange("lastName")}
-              placeholder="Last Name*"
-              variant="outlined"  
-            />
-          </Box>
-
-          {/* Questions with Switches */}
-          <CustomToggles/>
-
-          </>
-        )}
-
-        {activeStep === 1 && (
-          <>
-           <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                // mb: 4
-              }}
-            >
-            <Avatar
-              sx={{
-                width: 100,
-                height: 100,
-                backgroundColor: "#fff",
-                mb: 2,
-                p:1,
-                boxShadow:
-                  "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
-                border: "4px solid #fff"
-              }}
-              src="/address.svg" 
-            />
-
-            <Typography variant="h5" sx={{ fontWeight: 200, color: "#333" }}>
-              Address
-            </Typography>
-          </Box>
-
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="caption"
-                sx={{ color: '#fff', mb: 0.5, display: 'block', pl: 1 }}
-              >
-                Select Address Type*
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  value={formData.addressType}
-                  onChange={handleAddressTypeChange}
-                >
-                  <MenuItem value="Register">Register</MenuItem>
-                  <MenuItem value="Primary">Primary</MenuItem>
-                  <MenuItem value="Secondary">Secondary</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-              <Box sx={{ flex: 1 }}>
-                <CustomTextField
-                  fullWidth
-                  placeholder="ZipCode*"
-                  value={formData.zipCode}
-                  onChange={handleInputChange('zipCode')}
-                  error={errors.zipCode}
-                  helperText={errors.zipCode ? 'This field is required' : ''}
-                  FormHelperTextProps={{
-                    sx: { color: '#d32f2f' }
-                  }}
-                />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <CustomTextField
-                  fullWidth
-                  placeholder="City"
-                  value={formData.city}
-                  onChange={handleInputChange('city')}
-                />
-              </Box>
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-
-              <Box sx={{ flex: 1 }}>
-                <CustomTextField
-                  fullWidth
-                  placeholder="State"
-                  value={formData.state}
-                  onChange={handleInputChange('state')}
-              />
-            </Box>
-              
-            <Box sx={{ flex: 1 }}>
-                <CustomTextField
-                  fullWidth
-                  placeholder="Country"
-                  value={formData.country}
-                  onChange={handleInputChange('country')}
-              />
-            </Box>
-              
-              
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-              <CustomTextField
-                fullWidth
-                placeholder="Address 1*"
-                value={formData.address1}
-                onChange={handleInputChange('address1')}
-              />
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-              <CustomTextField
-                fullWidth
-                placeholder="Address 2"
-                value={formData.address2}
-                onChange={handleInputChange('address2')}
-              />
-            </Box>
-          </>
-        )}
-
-        {activeStep === 2 && (
-          <>
-            {/* Gender Header */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                // mb: 4
-              }}
-            >
-            <Avatar
-              sx={{
-                width: 100,
-                height: 100,
-                backgroundColor: "#fff",
-                mb: 2,
-                p:2,
-                boxShadow:
-                  "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
-                border: "4px solid #fff"
-              }}
-              src="/gender.svg" 
-            />
-
-            <Typography variant="h5" sx={{ fontWeight: 200, color: "#333" }}>
-              Gender
-            </Typography>
-            </Box>
-
-            <GenderSelector/>
-          </>
-        )}
-
-        {activeStep === 3 && (
-          <>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                // mb: 4
-              }}
-            >
-            <Avatar
-              sx={{
-                width: 100,
-                height: 100,
-                backgroundColor: "#fff",
-                mb: 2,
-                p:1,
-                boxShadow:
-                  "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
-                border: "4px solid #fff"
-              }}
-              src="/age.svg" 
-            />
-
-            <Typography variant="h5" sx={{ fontWeight: 200, color: "#333" }}>
-              Age
-            </Typography>
-          </Box>
-
-            <AgeSection/>
-
-          </>
-        )}
-
-        {activeStep === 4 && (
-          <>
-            {/* Weight Header */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                // mb: 4
-              }}
-            >
-            <Avatar
-              sx={{
-                width: 100,
-                height: 100,
-                backgroundColor: "#fff",
-                mb: 1,
-                p:2,
-                boxShadow:
-                  "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
-                border: "4px solid #fff"
-              }}
-              src="/weight.svg" 
-            />
-
-            <Typography variant="h5" sx={{ fontWeight: 200, color: "#333" }}>
-              Weight
-            </Typography>
-            </Box>
-
-            <WeightSelector/>
-          </>
-        )}
-
-        {activeStep === 5 && (
-          <>
-            {/* Height Header */}
-             <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                // mb: 4
-              }}
-            >
-            <Avatar
-              sx={{
-                width: 100,
-                height: 100,
-                backgroundColor: "#fff",
-                mb: 1,
-                p:2,
-                boxShadow:
-                  "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
-                border: "4px solid #fff"
-              }}
-              src="/height.svg" 
-            />
-
-            <Typography variant="h5" sx={{ fontWeight: 200, color: "#333" }}>
-              Height
-            </Typography>
-            </Box>
-
-            <HeightSelector/>
-
-          </>
-        )} 
-
-        {activeStep === 6 && (
-        <>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              mb: 4,
-              px: { xs: 2, sm: 4 },
-            }}
-          >
-            <Avatar
-              sx={{
-                width: { xs: 80, sm: 100 },
-                height: { xs: 80, sm: 100 },
-                backgroundColor: "#fff",
-                p: 1,
-                pl: 1.5,
-                boxShadow:
-                  "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
-                border: "4px solid #fff",
-              }}
-              src="/bloodGroup.svg"
-            />
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 200,
-                color: "#333",
-                fontSize: { xs: "1.2rem", sm: "1.5rem" },
-              }}
-            >
-              Blood Group
-            </Typography>
-          </Box>
-
-          <FormControl fullWidth>
-            <RadioGroup value={formData.bloodGroup} onChange={handleBloodGroupChange}>
-              <Grid container spacing={1} justifyContent="center">
-                {[
-                  ["A+", "A-"],
-                  ["B+", "B-"],
-                  ["O+", "O-"],
-                  ["AB+", "AB-"],
-                ].map((row, rowIndex) => (
-                  <Grid item xs={12} key={rowIndex}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: { xs: 1, sm: 2 },
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      {row.map((group) => (
-                        <FormControlLabel
-                          key={group}
-                          value={group}
-                          control={<Radio />}
-                          label={group}
-                          sx={{
-                            width: { xs: "120px", sm: "250px" },
-                            backgroundColor: "#f9fcff",
-                            justifyContent: "center",
+                              if (location.valid) {
+                                setFieldValue("city", location.city);
+                                setFieldValue("state", location.state);
+                                setFieldValue("country", location.country);
+                                setFieldError("zipCode", "");
+                              } else {
+                                setFieldValue("city", "");
+                                setFieldValue("state", "");
+                                setFieldValue("country", "");
+                                setFieldError("zipCode", "Invalid ZIP code");
+                                  setFieldTouched("zipCode", true, false);
+                              }
+                            } else {
+                              setFieldValue("city", "");
+                              setFieldValue("state", "");
+                              setFieldValue("country", "");
+                              setFieldError("zipCode", "");
+                            }
+                          }}
+                          error={touched.zipCode && Boolean(errors.zipCode)}
+                          helperText={touched.zipCode && errors.zipCode}
+                          onBlur={handleBlur}
+                        />
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <TextField
+                          fullWidth
+                          name="city"
+                          placeholder="City*"
+                          value={values.city}
+                          // onChange={handleChange}
+                          // onBlur={handleBlur}
+                          // error={touched.city && Boolean(errors.city)}
+                          // helperText={touched.city && errors.city}
+                          InputProps={{
+                            readOnly: true, 
                           }}
                         />
-                      ))}
+                      </Box>
                     </Box>
-                  </Grid>
-                ))}
 
-                <Grid item xs={12}>
-                  <Box sx={{ display: "flex", justifyContent: "center" }}>
-                    <FormControlLabel
-                      value="unknown"
-                      control={<Radio />}
-                      label="I don't know"
-                      sx={{
-                        width: { xs: "100%", sm: "528px" },
-                        borderRadius: "20px",
-                        backgroundColor: "#f9fcff",
-                        justifyContent: "center",
+                    <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                      <Box sx={{ flex: 1 }}>
+                        <TextField
+                          fullWidth
+                          name="state"
+                          placeholder="State*"
+                          value={values.state}
+                          InputProps={{
+                            readOnly: true, 
+                          }}
+                        />
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <TextField
+                          fullWidth
+                          name="country"
+                          placeholder="Country*"
+                          value={values.country}
+                          InputProps={{
+                            readOnly: true, 
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                    <Box sx={{ mb: 3 }}>
+                      <TextField
+                        fullWidth
+                        name="address1"
+                        placeholder="Address 1*"
+                        value={values.address1}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.address1 && Boolean(errors.address1)}
+                        helperText={touched.address1 && errors.address1}
+                      />
+                    </Box>
+                    <Box sx={{ mb: 3 }}>
+                      <TextField
+                        fullWidth
+                        name="address2"
+                        placeholder="Address 2"
+                        value={values.address2}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                    </Box>
+                  </>
+                )}
+                
+                {activeStep === 2 && (
+                  <>
+                    <StepHeader src="/gender.svg" title="Gender" />
+                    <GenderSelector 
+                      value={values.gender}
+                      onChange={(gender) => setFieldValue('gender', gender)}
+                      isPregnant={values.isPregnant}
+                      setFieldValue={setFieldValue}
+                      error={touched.gender && errors.gender}
+                    />
+                  </>
+                )}
+
+                {activeStep === 3 && (
+                  <>
+                  <StepHeader src="/age.svg" title="Age" />
+                    <AgeSection 
+                      birthdate={values.birthdate}
+                      age={values.age}
+                      onBirthdateChange={(e) => {
+                        const birthdate = e.target.value;
+                        const calculatedAge = birthdate ? calculateAge(birthdate) : '';
+                        setFieldValue('birthdate', birthdate);
+                        setFieldValue('age', calculatedAge);
+                      }}
+                      onAgeChange={(e) => setFieldValue('age', e.target.value)}
+                      errors={errors}
+                      touched={touched}
+                      //errors={{ birthdate: touched.birthdate && errors.birthdate, age: touched.age && errors.age }}
+                    />
+                  </>
+                )}
+
+                {activeStep === 4 && (
+                  <>
+                  <StepHeader src="/weight.svg" title=" Weight" />
+                    <WeightSelector 
+                      weight={values.weight}
+                      weightUnit={values.weightUnit}
+                      onWeightChange={(e, newValue) => setFieldValue('weight', newValue)}
+                      error={errors.weight}
+                      touched={touched.weight}
+                      onUnitChange={(unit) => {
+                        let convertedWeight = values.weight;
+                        if (unit === 'lbs' && values.weightUnit === 'kg') {
+                          convertedWeight = Math.round(values.weight * 2.20462);
+                        } else if (unit === 'kg' && values.weightUnit === 'lbs') {
+                          convertedWeight = Math.round(values.weight / 2.20462);
+                        }
+                        setFieldValue('weightUnit', unit);
+                        setFieldValue('weight', convertedWeight);
+                    }}
+                    />
+                  </>
+                )}
+
+                {activeStep === 5 && (
+                  <>               
+                   <StepHeader src="/height.svg" title=" Height" />
+                    <HeightSelector 
+                      height={values.height}
+                      heightUnit={values.heightUnit}
+                      error={errors.height}
+                      touched={touched.height}
+                      onHeightChange={(e, newValue) => setFieldValue('height', newValue)}
+                      onUnitChange={(unit) => {
+                        let convertedHeight = values.height;
+                        if (unit === 'inch' && values.heightUnit === 'cm') {
+                          convertedHeight = Math.round((values.height / 2.54) * 10) / 10;
+                        } else if (unit === 'cm' && values.heightUnit === 'inch') {
+                          convertedHeight = Math.round(values.height * 2.54 * 10) / 10;
+                        }
+                        setFieldValue('heightUnit', unit);
+                        setFieldValue('height', convertedHeight);
                       }}
                     />
-                  </Box>
-                </Grid>
-              </Grid>
-            </RadioGroup>
-          </FormControl>
-        </>
-        )} 
+                  </>
+                )}
 
-        {/* Navigation Buttons */}
-        <Box 
-        sx={{
-           display: 'flex',
-          justifyContent: 'flex-end',
-          mt: 2, 
-          gap: 1,
-        }}>
-          <BackButton
-            variant="text"
-            onClick={handleBack}
-            disabled={activeStep === 0}
-          >
-            Back
-          </BackButton>
+                {activeStep === 6 && (
+                  <>
+                    <StepHeader src="/bloodGroup.svg" title="Blood Group" />
+                    <FormControl fullWidth error={touched.bloodGroup && Boolean(errors.bloodGroup)}>
+                      <RadioGroup 
+                        name="bloodGroup"
+                        value={values.bloodGroup} 
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      >
+                        <Grid container spacing={1} justifyContent="center">
+                          {[['A+', 'A-'], ['B+', 'B-'], ['O+', 'O-'], ['AB+', 'AB-']].map((row, rowIndex) => (
+                            <Grid item xs={12} key={rowIndex}>
+                              <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 1, sm: 2 }, flexWrap: 'wrap' }}>
+                                {row.map((group) => (
+                                  <FormControlLabel
+                                    key={group}
+                                    value={group}
+                                    control={<Radio />}
+                                    label={group}
+                                    sx={{ width: { xs: '120px', sm: '250px' }, backgroundColor: '#f9fcff', justifyContent: 'center' }}
+                                  />
+                                ))}
+                              </Box>
+                            </Grid>
+                          ))}
+                          <Grid item xs={12}>
+                            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                              <FormControlLabel
+                                value="unknown"
+                                control={<Radio />}
+                                label="I don't know"
+                                sx={{ width: { xs: '100%', sm: '528px' }, borderRadius: '20px', backgroundColor: '#f9fcff', justifyContent: 'center' }}
+                              />
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </RadioGroup>
+                      {touched.bloodGroup && errors.bloodGroup && (
+                        <FormHelperText>{errors.bloodGroup}</FormHelperText>
+                      )}
+                    </FormControl>
+                  </>
+                )}
 
-          {activeStep === steps.length - 1 ? (
-            <CustomButton
-              onClick={handleSubmit}
-              label="Submit"
-            />
-          ) : (
-            <CustomButton
-              onClick={handleNext}
-              label="Next"
-            />
+                {/* Navigation Buttons */}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 1 }}>
+                  <BackButton variant="text" onClick={handleBack} disabled={activeStep === 0}>
+                    Back
+                  </BackButton>
+
+
+
+                  {activeStep === steps.length -1 && (
+                    <CustomButton type="submit" label="Submit"
+                    //  disabled={isSubmitting} 
+                     onClick={setSubmitting} 
+                     />
+                  )}
+
+                   
+                  {activeStep !== steps.length - 1 && (
+                    <CustomButton
+                      type="button"
+                      onClick={() => handleNext(validateForm, values, setTouched)}
+                      label="Next"
+                    />
+                  )}
+               
+
+                </Box>
+              </Box>
+            </Form>
           )}
-          
-        </Box>
-
+        </Formik>
       </Box>
-
-    </Container>
-
+      </Container>
     </Layout>
   );
 }

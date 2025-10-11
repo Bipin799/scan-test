@@ -1,87 +1,3 @@
-// import React from "react";
-// import { TextField } from "@mui/material";
-// import { styled } from "@mui/material/styles";
-
-// const StyledTextField = styled(TextField)(({ theme }) => ({
-//   fontFamily: "Nunito, sans-serif",
-//   fontWeight: 400,
-//   fontSize: "1rem",
-//   lineHeight: "1.4375em",
-//   color: "rgba(0, 0, 0, 0.87)",
-//   WebkitFontSmoothing: "antialiased",
-//   WebkitTextSizeAdjust: "100%",
-//   boxSizing: "border-box",
-//   cursor: "text",
-//   display: "inline-flex",
-//   WebkitBoxAlign: "center",
-//   alignItems: "center",
-//   width: "100%",
-//   position: "relative",
-//   borderRadius: "25px",
-//   boxShadow: "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset !important",
- 
-//   "& .MuiOutlinedInput-root": {
-//     borderRadius: "12px",
-//     backgroundColor: "#f5f8ff",
-//     "& fieldset": {
-//       borderColor: "#e3ebf6",
-//       borderWidth: "2px",
-//       boxShadow: "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset !important",
- 
-//     },
-//     "&:hover fieldset": {
-//       borderColor: "#1976d2",
-//        boxShadow: "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset !important",
- 
-//     },
-//     "&.Mui-focused fieldset": {
-//       borderColor: "#1976d2",
-//       boxShadow: "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset !important",
- 
-//     }
-//   },
-//   "& .MuiOutlinedInput-root.Mui-error": {
-//     "& fieldset": {
-//       borderColor: "#d32f2f",
-//       borderWidth: "2px"
-//     }
-//   }
-// }));
-
-// export default function CustomTextField({
-//   value,
-//   onChange,
-//   placeholder,
-//   type = "text",
-//   disabled = false,
-//   startAdornment,
-//   multiline = false,
-//   rows,
-//   maxLength,
-//   fullWidth = true,
-//   name,
-// }) {
-//   return (
-//     <StyledTextField
-//       fullWidth={fullWidth}
-//       value={value}
-//       onChange={onChange}
-//       placeholder={placeholder}
-//       type={type}
-//       disabled={disabled}
-//       multiline={multiline}
-//       rows={rows}
-//       inputProps={{ maxLength }}
-//       InputProps={{
-//         startAdornment: startAdornment
-//       }}
-//       name={name}
-//     />
-//   );
-// }
-
-
-
 
 
 
@@ -97,7 +13,9 @@ export default function CustomTextField({
   placeholder,
   type = "text",
   maxLength,
-  error = false,
+  onBlur, 
+  error = false ,
+  // touched, 
   helperText = "",
   xs = 12,
   lg = 12,
@@ -116,8 +34,11 @@ export default function CustomTextField({
         placeholder={placeholder}
         type={type}
         value={value}
+        onBlur={onBlur} 
         onChange={onChange}
         error={error}
+        // touched={touched}
+
         helperText={helperText}
         variant="outlined"
         inputProps={{ maxLength }}
