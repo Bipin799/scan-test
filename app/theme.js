@@ -190,19 +190,128 @@ const theme = createTheme({
       },
     },
     },
-    
-    //  MuiPaper: {
+
+    MuiCssBaseline: {
+      styleOverrides: {
+        /* Remove spin buttons for number inputs globally */
+        "input[type=number]": {
+          MozAppearance: "textfield", /* Firefox */
+        },
+        "input::-webkit-outer-spin-button, input::-webkit-inner-spin-button": {
+          WebkitAppearance: "none", /* Chrome, Safari, Edge */
+          margin: 0,
+        },
+      },
+    },
+
+
+
+    //  MuiDateCalendar: {
     //   styleOverrides: {
     //     root: {
-    //       padding: '5px',
-    //       maxWidth: '700px',
-    //       margin: '0 auto',
-    //       '@media (max-width:600px)': {
-    //         padding: '24px',
+    //       backgroundColor: "#fff",
+    //       color: "#000",
+    //       // borderRadius: "12px",
+    //       // boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+    //       // padding: "15px",
+    //     },
+    //   },
+    // },
+    //  MuiDatePicker: {
+    //   defaultProps: {
+    //     slotProps: {
+    //       popper: {
+    //         placement: "bottom-start", // always below input
+    //         modifiers: [
+    //           {
+    //             name: "flip",
+    //             enabled: false, // prevent flipping above
+    //           },
+    //           {
+    //             name: "preventOverflow",
+    //             enabled: true,
+    //             options: {
+    //               altBoundary: true,
+    //               rootBoundary: "viewport",
+    //               tether: false,
+    //             },
+    //           },
+    //           {
+    //             // 🧩 Custom modifier to match field width
+    //             name: "sameWidth",
+    //             enabled: true,
+    //             phase: "beforeWrite",
+    //             requires: ["computeStyles"],
+    //             fn: ({ state }) => {
+    //               state.styles.popper.width = `${state.rects.reference.width}px`;
+    //             },
+    //           },
+    //           {
+    //             name: "offset",
+    //             options: { offset: [0, 8] }, // small gap between input & popup
+    //           },
+    //         ],
     //       },
     //     },
     //   },
     // },
+    // MuiPickersDay: {
+    //   styleOverrides: {
+    //     root: {
+    //       color: "#000",
+    //       "&:hover": {
+    //         backgroundColor: "#f5f5f5",
+    //       },
+    //       "&.Mui-selected": {
+    //         backgroundColor: "#1976d2",
+    //         color: "#fff",
+    //         "&:hover": {
+    //           backgroundColor: "#1565c0",
+    //         },
+    //       },
+    //       "&.Mui-disabled": {
+    //         color: "#ccc",
+    //       },
+    //     },
+    //   },
+    // },
+    // MuiPickersCalendarHeader: {
+    //   styleOverrides: {
+    //     root: {
+    //       backgroundColor: "#fff",
+    //       color: "#000",
+    //       fontWeight: 600,
+    //       "& .MuiPickersArrowSwitcher-button": {
+    //         color: "#000",
+    //       },
+    //     },
+    //   },
+    // },
+    // MuiPickersYear: {
+    //   styleOverrides: {
+    //     yearButton: {
+    //       color: "#000",
+    //       "&.Mui-selected": {
+    //         backgroundColor: "#1976d2",
+    //         color: "#fff",
+    //       },
+    //     },
+    //   },
+    // },
+    // MuiPickersMonth: {
+    //   styleOverrides: {
+    //     monthButton: {
+    //       color: "#000",
+    //       "&.Mui-selected": {
+    //         backgroundColor: "#1976d2",
+    //         color: "#fff",
+    //       },
+    //     },
+    //   },
+    // },
+
+    
+    
       
   },
 });

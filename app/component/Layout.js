@@ -407,7 +407,7 @@ export default function Layout({ children }) {
           mt: 8,
           ml: isMobile ? 0 : 0,
           // background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-          background: ' rgba(247, 241, 241, 1)',
+          background: ' #ffffffff',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           position: 'relative',
           '&::before': {

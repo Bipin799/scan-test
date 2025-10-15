@@ -7,7 +7,8 @@ export default function Home() {
   return (
     <Layout>
       <h1>Home Page</h1>
-      <SwapCard/>
+      {/* dont delete this  */}
+      {/* <SwapCard/> */}
     </Layout>
   );
 }

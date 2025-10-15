@@ -1,27 +1,69 @@
 "use client";
 
-import { useState } from "react";
 import {
   Box,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
-  TextField,
+  FormHelperText,
 } from "@mui/material";
+import CustomTextField from "./CustomTextField";
 
-export default function WeightSelector() {
-  const [unit, setUnit] = useState("kg");
-  const [weight, setWeight] = useState("");
+const getRulerData = (centerValue, range, step, majorStep, min, max) => {
+  
+  let start = Math.round(Math.max(min, centerValue - range));
+  let end = Math.round(Math.min(max, centerValue + range));
+  
 
-  const handleUnitChange = (event, newUnit) => {
-    if (newUnit !== null) setUnit(newUnit);
+  if (start === min && end - start < range * 2) {
+    end = Math.min(max, start + range * 2);
+  }
+  if (end === max && end - start < range * 2) {
+     start = Math.max(min, end - range * 2);
+  } 
+
+  const ticks = [];
+  for (let i = start; i <= end; i += step) {
+  const roundedValue = Math.round(i);
+  const isMajorTick = roundedValue % majorStep === 0;
+  ticks.push({
+    value: roundedValue,
+    isMajor: isMajorTick,
+    label: isMajorTick ? String(roundedValue) : "",
+  });
+}
+  return ticks; 
+};
+
+
+function RulerBar({ value, min, max, step, unit, onValueChange }) {
+  const majorStep = 5;
+  const visibleRange = 15;
+  const currentValue = Math.round(Math.max(min, Math.min(max, value)));
+  const currentValue1 =Math.max(min, Math.min(max, value));
+  const ticks = getRulerData(currentValue, visibleRange, step, majorStep, min, max);
+
+  const handleRulerClick = (event) => {
+    const rulerRect = event.currentTarget.getBoundingClientRect();
+    const clickX = event.clientX - rulerRect.left;
+    const rulerWidth = rulerRect.width;
+    const tickWidth = rulerWidth / ticks.length;
+    const clickedIndex = Math.floor(clickX / tickWidth);
+    
+    if (ticks[clickedIndex]) {
+      const clickedValue = ticks[clickedIndex].value;
+      const clampedValue = Math.max(min, Math.min(max, clickedValue));
+      onValueChange(clampedValue);
+    }
   };
 
-  const handleWeightChange = (event) => {
-    setWeight(event.target.value);
+  const getTickPosition = (tickValue) => {
+    const rangeStart = ticks[0]?.value || min;
+    const rangeEnd = ticks[ticks.length - 1]?.value || max;
+    return ((tickValue - rangeStart) / (rangeEnd - rangeStart)) * 100;
   };
 
-  const rulerMarks = Array.from({ length: 16 }, (_, i) => i); // 0 to 15
+  const centerPosition = getTickPosition(currentValue); 
 
   return (
     <Box
@@ -29,402 +71,364 @@ export default function WeightSelector() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "1rem",
-        mt: "15px",
+        width: "100%",
+        maxWidth: 420,
+        position: "relative",
+        marginTop: 3,
+        padding: "0 16px",
       }}
     >
-      {/* Unit Selector */}
-      <ToggleButtonGroup
-        value={unit}
-        exclusive
-        onChange={handleUnitChange}
-        sx={{
-          display: "inline-flex",
-          boxShadow:
-            "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
-          borderRadius: "20px",
-        }}
-      >
-        <ToggleButton
-          value="kg"
-          sx={{
-              textTransform: "none",
-            border: "none",
-            padding: "10px 30px",
-            fontWeight: "bold",
-            "&.Mui-selected": {
-              backgroundColor: "#1976d2",
-              color: "#fff",
-            },
-            "&.Mui-selected:hover": {
-              backgroundColor: "#1565c0",
-            },
-          }}
-        >
-          Kg
-        </ToggleButton>
-        <ToggleButton
-          value="lbs"
-          sx={{
-              textTransform: "none",
-            border: "none",
-            padding: "10px 30px",
-            fontWeight: "bold",
-            "&.Mui-selected": {
-              backgroundColor: "#1976d2",
-              color: "#fff",
-            },
-            "&.Mui-selected:hover": {
-              backgroundColor: "#1565c0",
-            },
-          }}
-        >
-          Lbs
-        </ToggleButton>
-      </ToggleButtonGroup>
-
-      {/* Weight Input */}
       <Box
         sx={{
+          position: "absolute",
+          top: -50,
+          left: `${centerPosition}%`,
+          transform: "translateX(-50%)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "1rem",
+          zIndex: 2,
         }}
       >
-        <TextField
-          id="weight"
-          name="weight"
-          placeholder="0"
-          type="tel"
-          value={weight}
-          onChange={handleWeightChange}
-          InputProps={{
-            endAdornment: (
-              <Typography variant="h6" sx={{ ml: 1 }}>
-                {unit}
-              </Typography>
-            ),
-          }}
+        <Box
           sx={{
-            width: "250px",
-            "& .MuiOutlinedInput-root": {
-              fontWeight: 400,
-              fontFamily: "Nunito, sans-serif",
-              fontSize: "1rem",
-              lineHeight: 1.4375,
-              color: "rgba(0,0,0,0.87)",
-              paddingRight: "14px",
-            },
+            color: "#1172ba",
+            padding: "8px 16px",
+            fontSize: "1.125rem",
+            fontWeight: "600",
+            whiteSpace: "nowrap",
           }}
-        />
+        >
+          {currentValue1.toFixed(2)} {unit}
+        </Box>
+      </Box>
 
-        {/* Ruler Marks */}
-        {/* <Box sx={{ display: "flex", gap: "5px" }}>
-          {rulerMarks.map((mark, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <Typography
-                variant="h6"
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          height: 80,
+          cursor: "pointer",
+          overflow: "hidden",
+        }}
+        onClick={handleRulerClick}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            position: "relative",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          {ticks.map((tick, index) => {
+            const isCenter = Math.abs(tick.value - currentValue) < step / 2;            
+            const tickPercent = (index / (ticks.length - 1)) * 100; 
+
+            return (
+              <Box
+                key={`${tick.value}-${index}`}
                 sx={{
-                  visibility:
-                    mark % 5 === 0 ? "visible" : "hidden",
-                  marginBottom: "5px",
-                  width: "12px",
-                  fontSize: "0.8rem",
+                  position: "absolute",
+                  left: `${tickPercent}%`,
+                  transform: "translateX(-50%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  bottom: 0,
                 }}
               >
-                {mark}.00
-              </Typography>
-              <Box
-                sx={{
-                  width: "4px",
-                  height: "20px",
-                  backgroundColor:
-                    mark % 5 === 0 ? "rgb(17, 114, 186)" : "black",
-                }}
-              />
-            </Box>
-          ))}
-        </Box> */}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    marginBottom: "6px",
+                    fontSize: "0.75rem",
+                    fontWeight: "500",
+                    color: isCenter ? "#1172ba" : "#000",
+                    visibility: tick.isMajor ? "visible" : "hidden",
+                    minWidth: "20px",
+                    textAlign: "center",
+                  }}
+                >
+                  {tick.label}
+                </Typography>
 
+                <Box
+                  sx={{
+                    width: "2px",
+                    height: isCenter ? "100px" : tick.isMajor ? "50px" : "20px",
+                    backgroundColor: isCenter ? "#1172ba" : "#000",
+                    transition: "all 0.2s ease",
+                  }}
+                />
+              </Box>
+            );
+          })}
+        </Box>
+
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: `${centerPosition}%`,
+            transform: "translateX(-50%)",
+            backgroundColor: "#1172ba",
+            width: "3px",
+            height: "100px",
+            borderRadius: "1.5px",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        />
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          width: "100%",
+          marginTop: 1,
+          paddingX: 1,
+        }}
+      >
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem", fontWeight: "500" }}>
+          {/* {ticks[0]?.value.toFixed(0) || min} {unit} */}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem", fontWeight: "500" }}>
+          {/* {ticks[ticks.length - 1]?.value.toFixed(0) || max} {unit} */}
+        </Typography>
       </Box>
     </Box>
   );
 }
 
+export default function WeightSelector({ 
+  weight, 
+  weightUnit, 
+  onWeightChange, 
+  onUnitChange, 
+  error, 
+  touched 
+}) {  
+  const handleUnitChange = (event, newUnit) => {
+    if (newUnit !== null) {
+      // Only convert if there's a valid weight value
+      if (weight && !isNaN(weight)) {
+        let convertedWeight;
+        if (newUnit === "kg" && weightUnit === "lbs") {
+          convertedWeight = Number((weight * 0.453592).toFixed(2));
+        } 
+        // else if (newUnit === "lbs" && weightUnit === "kg") {
+        //   // convertedWeight = Number((weight * 2.20462).toFixed(2));
+        // }
+         else {
+          // If unit hasn't actually changed, keep the same value
+          // convertedWeight = weight;
+          convertedWeight = Number((weight * 2.20462).toFixed(2));
+        }
+        
+        const syntheticEvent = {
+          target: {
+            name: "weight",
+            value: convertedWeight
+          }
+        };
+        onWeightChange(syntheticEvent, convertedWeight);
+      }
+      
+      onUnitChange(newUnit);
+    }
+  };
 
+  const handleWeightInputChange = (event) => {
+    let value = event.target.value;
+    
+    // Allow empty string
+    if (value === "") {
+      onWeightChange(event, "");
+      return;
+    }
+    
+    // Remove any non-numeric characters except decimal point
+    // This prevents e, +, -, and other characters
+    value = value.replace(/[^0-9.]/g, "");
+    
+    // Prevent multiple decimal points
+    const decimalCount = (value.match(/\./g) || []).length;
+    if (decimalCount > 1) {
+      return;
+    }
+    
+    // Limit to 2 decimal places
+    if (value.includes(".")) {
+      const parts = value.split(".");
+      if (parts[1] && parts[1].length > 2) {
+        value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+      }
+    }
+    
+    // Convert to number for validation
+    const numericValue = parseFloat(value);
+    
+    // Check if it's a valid positive number
+    if (!isNaN(numericValue) && numericValue < 0) {
+      return; // Don't allow negative numbers
+    }
+    
+    // Check max limits
+    const maxLimit = weightUnit === "lbs" ? 661 : 300;
+    if (!isNaN(numericValue) && numericValue > maxLimit) {
+      value = maxLimit.toString();
+    }
 
+    // Allow partial decimal input (like "54.")
+    const syntheticEvent = {
+      target: {
+        name: "weight",
+        value: value
+      }
+    };
+    onWeightChange(syntheticEvent, value);
+  };
 
+  const handleRulerChange = (newValue) => {
+    const syntheticEvent = {
+      target: {
+        name: "weight",
+        value: newValue
+      }
+    };
+    onWeightChange(syntheticEvent, newValue);
+  };
 
+  // Prevent keyboard input of invalid characters
+  const handleKeyDown = (event) => {
+    // Prevent e, E, +, -, and other non-numeric keys
+    if (
+      event.key === "e" ||
+      event.key === "E" ||
+      event.key === "+" ||
+      event.key === "-"
+    ) {
+      event.preventDefault();
+    }
+  };
 
+  const min = 0;
+  const max = weightUnit === "kg" ? 300 : 661;
+  const step = 1;
 
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "1.5rem",
+        mt: "15px",
+        padding: "0 16px",
+      }}
+    >
+      <ToggleButtonGroup
+        value={weightUnit}
+        exclusive
+        onChange={handleUnitChange}
+        sx={{
+          display: "inline-flex",
+          boxShadow: "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
+          borderRadius: "20px",
+        }}
+      >
+        {["kg", "lbs"].map((unit) => (
+          <ToggleButton
+            key={unit}
+            value={unit}
+            sx={{
+              textTransform: "none",
+              fontFamily: 'Roboto, Arial, sans-serif',
+              border: "none",
+              padding: "10px 30px",
+              fontWeight: "500",
+              fontSize: "1rem",
+              "&.Mui-selected": {
+                backgroundColor: "#1976d2",
+                color: "#fff",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "#1565c0",
+              },
+            }}
+          >
+            {unit}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
 
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "0.5rem",
+        }}
+      >
+        <CustomTextField
+          id="weight"
+          name="weight"
+          placeholder="0"
+          type="text"
+          value={weight || ''}
+          onChange={handleWeightInputChange}
+          onKeyDown={handleKeyDown}
+          error={touched && Boolean(error)}
+          inputMode="decimal"
+          InputProps={{
+            endAdornment: (
+              <Typography variant="h6" sx={{ ml: 1, fontWeight: "500", color: "text.primary" }}>
+                {weightUnit}
+              </Typography>
+            ),
+          }}
+          sx={{
+            width: "200px",
+            "& .MuiOutlinedInput-root": {
+              fontWeight: 500,
+              fontFamily: "Nunito, sans-serif",
+              fontSize: "1.25rem",
+              lineHeight: 1.4375,
+              color: "rgba(0,0,0,0.87)",
+              paddingRight: "14px",
+              "& fieldset": {
+                borderColor: touched && error ? "#d32f2f" : "#e0e0e0",
+                borderWidth: "2px",
+              },
+              "&:hover fieldset": {
+                borderColor: touched && error ? "#d32f2f" : "#1976d2",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: touched && error ? "#d32f2f" : "#1976d2",
+                borderWidth: "2px",
+              },
+            },
+          }}
+        />
+        {touched && error && (
+          <FormHelperText error sx={{ fontSize: "0.875rem", fontWeight: 500 }}>
+            {error}
+          </FormHelperText>
+        )}
+      </Box>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// "use client";
-
-// import React, { useState, useRef, useEffect } from "react";
-// import {
-//   Box,
-//   Button,
-//   Typography,
-//   TextField,
-//   ToggleButton,
-//   ToggleButtonGroup,
-//   Paper,
-// } from "@mui/material";
-
-// function WeightSelector({
-//   value,
-//   onChange,
-//   unit = "kg",
-//   onUnitChange,
-//   minWeight = 0,
-//   maxWeight = 300,
-//   showRuler = true,
-// }) {
-//   return (
-//     <Box display="flex" flexDirection="column" alignItems="center" gap={4}>
-//       {/* Unit Selector */}
-//       <Paper
-//         elevation={3}
-//         sx={{
-//           display: "inline-flex",
-//           borderRadius: "50px",
-//           overflow: "hidden",
-//         }}
-//       >
-//         <ToggleButtonGroup
-//           value={unit}
-//           exclusive
-//           onChange={(e, newUnit) => newUnit && onUnitChange(newUnit)}
-//           sx={{ border: "none" }}
-//         >
-//           <ToggleButton value="kg" sx={{ px: 4, py: 1 }}>
-//             Kg
-//           </ToggleButton>
-//           <ToggleButton value="lbs" sx={{ px: 4, py: 1 }}>
-//             Lbs
-//           </ToggleButton>
-//         </ToggleButtonGroup>
-//       </Paper>
-
-//       {/* Weight Input */}
-//       <Box position="relative">
-//         <TextField
-//           id="weight"
-//           name="weight"
-//           type="number"
-//           value={value}
-//           onChange={(e) => onChange(e.target.value)}
-//           placeholder="0"
-//           inputProps={{
-//             min: minWeight,
-//             max: maxWeight,
-//             style: { textAlign: "center", fontSize: "1rem" },
-//           }}
-//           sx={{
-//             width: 200,
-//             "& input": { padding: "12px" },
-//           }}
-//         />
-//         <Typography
-//           variant="subtitle1"
-//           sx={{
-//             position: "absolute",
-//             right: 10,
-//             top: "50%",
-//             transform: "translateY(-50%)",
-//             fontWeight: 600,
-//           }}
-//         >
-//           {unit}
-//         </Typography>
-//       </Box>
-
-//       {/* Current Weight Display */}
-//       {showRuler && (
-//         <Typography variant="h6">{Number(value || 0).toFixed(2)}</Typography>
-//       )}
-//     </Box>
-//   );
-// }
-
-// function CuttingPattern({ weight, maxWeight = 300 }) {
-//   const scrollContainerRef = useRef(null);
-//   const currentMarkRef = useRef(null);
-
-//   const marks = [];
-//   for (let i = 0; i <= maxWeight; i += 5) marks.push(i);
-
-//   const currentWeight = parseFloat(weight) || 0;
-//   const nearestMark = Math.round(currentWeight / 5) * 5;
-
-//   useEffect(() => {
-//     if (scrollContainerRef.current && currentMarkRef.current) {
-//       const container = scrollContainerRef.current;
-//       const currentMark = currentMarkRef.current;
-//       const scrollLeft =
-//         currentMark.offsetLeft - container.clientWidth / 2 + currentMark.clientWidth / 2;
-
-//       container.scrollTo({
-//         left: scrollLeft,
-//         behavior: "smooth",
-//       });
-//     }
-//   }, [nearestMark]);
-
-//   return (
-//     <Box sx={{ width: "100%", overflowX: "auto", py: 2 }}>
-//       <Box display="flex" alignItems="flex-end" gap={2} sx={{ minWidth: "max-content" }} ref={scrollContainerRef}>
-//         {marks.map((mark, index) => {
-//           const isLargeLine = index % 5 === 0;
-//           const isHighlighted = mark === nearestMark;
-//           const isPassed = mark < nearestMark;
-
-//           return (
-//             <Box
-//               key={mark}
-//               ref={isHighlighted ? currentMarkRef : null}
-//               display="flex"
-//               flexDirection="column"
-//               alignItems="center"
-//               minWidth={30}
-//             >
-//               {/* Label */}
-//               <Typography
-//                 variant="caption"
-//                 sx={{
-//                   visibility: isLargeLine ? "visible" : "hidden",
-//                   color: isHighlighted ? "primary.main" : isPassed ? "primary.main" : "#333",
-//                   fontWeight: isHighlighted ? "bold" : isPassed ? 600 : 500,
-//                   mb: 1,
-//                   textAlign: "center",
-//                 }}
-//               >
-//                 {mark}.00
-//               </Typography>
-
-//               {/* Line */}
-//               <Box
-//                 sx={{
-//                   width: isHighlighted ? 5 : isPassed ? 3 : 2,
-//                   height: isLargeLine ? 40 : 24,
-//                   backgroundColor: isHighlighted ? "primary.main" : isPassed ? "primary.main" : "black",
-//                   borderRadius: "1px",
-//                   transition: "all 0.3s ease",
-//                   boxShadow: isHighlighted
-//                     ? "0 0 12px rgba(17, 114, 186, 0.8)"
-//                     : isPassed
-//                     ? "0 0 6px rgba(17, 114, 186, 0.4)"
-//                     : "none",
-//                 }}
-//               />
-//             </Box>
-//           );
-//         })}
-//       </Box>
-
-//       {/* Current weight indicator */}
-//       {nearestMark >= 0 && nearestMark <= maxWeight && (
-//         <Box display="flex" justifyContent="center" mt={3}>
-//           <Typography
-//             variant="h6"
-//             sx={{
-//               bgcolor: "primary.main",
-//               color: "white",
-//               px: 3,
-//               py: 1,
-//               borderRadius: 2,
-//               fontWeight: "bold",
-//               boxShadow: 3,
-//             }}
-//           >
-//             Current Weight: {nearestMark}.00 kg
-//           </Typography>
-//         </Box>
-//       )}
-//     </Box>
-//   );
-// }
-
-// export default function WeightSelectorApp() {
-//   const [unit, setUnit] = useState("kg");
-//   const [weight, setWeight] = useState("60");
-
-//   const handleWeightChange = (value) => {
-//     if (value === "") {
-//       setWeight("");
-//       return;
-//     }
-//     const numValue = parseFloat(value);
-//     if (!isNaN(numValue) && numValue >= 0 && numValue <= 300) {
-//       setWeight(value);
-//     }
-//   };
-
-//   return (
-//     <Box
-//       display="flex"
-//       flexDirection="column"
-//       alignItems="center"
-//       minHeight="100vh"
-//       bgcolor="#f9fafb"
-//       py={8}
-//       px={4}
-//     >
-//       {/* <Typography variant="h4" fontWeight="bold" mb={2}>
-//         Weight
-//       </Typography> */}
-
-//       {/* Weight Selector */}
-//       <WeightSelector
-//         value={weight}
-//         onChange={handleWeightChange}
-//         unit={unit}
-//         onUnitChange={setUnit}
-//         minWeight={0}
-//         maxWeight={300}
-//         showRuler={true}
-//       />
-
-//       {/* Cutting Pattern */}
-//       <CuttingPattern weight={weight} maxWeight={300} />
-
-//       {/* Info */}
-
-//       {/* <Box mt={6} textAlign="center" maxWidth={500}>
-//         <Typography variant="body2" mb={1}>
-//           <strong>Pattern Logic:</strong> 4 small lines, then 1 large line (repeating)
-//         </Typography>
-//         <Typography variant="body2" mb={1}>
-//           <strong>Intervals:</strong> Only multiples of 5 (0, 5, 10, 15, 20...)
-//         </Typography>
-//         <Typography variant="body2">
-//           Type any weight from 0-300 kg. The UI will auto-scroll and highlight the nearest mark!
-//         </Typography>
-//       </Box> */}
-
-//     </Box>
-//   );
-// }
+      <RulerBar
+        value={Number(weight) || 0}
+        min={min}
+        max={max}
+        step={step}
+        unit={weightUnit}
+        onValueChange={handleRulerChange}
+      />
+    </Box>
+  );
+}

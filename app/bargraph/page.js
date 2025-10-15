@@ -252,6 +252,8 @@ export default function Chart() {
       <Box>
         <Container maxWidth="xl">
           <Paper elevation={8} sx={{ borderRadius: 5, p: 4, backgroundColor: "white", width: "1084px" }}>
+
+            
             {/* Header */}
             <Box sx={{ ml: 30, mb: 4 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
