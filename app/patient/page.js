@@ -166,10 +166,18 @@ export default function ProfileForm() {
   return (
     <Layout>    
         <CustomCard 
-        title="Add Patient">
+        title="Add Patient"
+        sx = {{ 
+          border: "1px solid #f0f0f0",
+          boxShadow: "rgba(0, 0, 0, 0.1) 0px 2px 3px",
+          }}
+        >
         <Container 
           maxWidth="sm"
-          sx={{ py: 3,  mx: "auto",  }}
+          sx={{ 
+            py: 3, 
+             mx: "auto", 
+             }}
         >
         <CustomStepper steps={steps} activeStep={activeStep} />
         <Formik
@@ -409,6 +417,7 @@ export default function ProfileForm() {
                       isPregnant={values.isPregnant}
                       setFieldValue={setFieldValue}
                       error={touched.gender && errors.gender}
+                      showPregnantToggle={true} 
                     />
                   </>
                 )}

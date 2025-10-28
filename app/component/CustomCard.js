@@ -8,7 +8,7 @@ export default function CustomCard({ title, children, sx = {} }) {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        py: 6,
+        // py: 6,
       }}
     >
       <Paper
@@ -18,8 +18,8 @@ export default function CustomCard({ title, children, sx = {} }) {
         //   maxWidth: "600px",
           backgroundColor: "#fff",
           borderRadius: "12px",
-          border: "1px solid #f0f0f0",
-          boxShadow: "rgba(0, 0, 0, 0.1) 0px 2px 3px",
+          // border: "1px solid #f0f0f0",
+          // boxShadow: "rgba(0, 0, 0, 0.1) 0px 2px 3px",
           overflow: "hidden",
           ...sx,
         }}
@@ -31,6 +31,7 @@ export default function CustomCard({ title, children, sx = {} }) {
               alignItems: "center",
               padding: "16px",
               borderRadius: "8px",
+              // border:"2px solid black",
               backgroundColor: "#eee",
             }}
           >
@@ -50,7 +51,7 @@ export default function CustomCard({ title, children, sx = {} }) {
           </Box>
         )}
 
-        <Box sx={{ p: 3 }}>{children}</Box>
+        <Box sx={{ p: 1 }}>{children}</Box>
       </Paper>
     </Box>
   );

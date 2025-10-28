@@ -32,19 +32,48 @@ const theme = createTheme({
         fontSize: "1.5rem",
       },
     },
-    body1: {
-      fontSize: "1rem",
-      "@media (max-width:600px)": {
-        fontSize: "0.875rem",
-      },
-    },
+  
+    // body1: {
+    //   fontSize: "1rem",
+    //   "@media (max-width:600px)": {
+    //     fontSize: "0.875rem",
+    //   },
+    // },
+
     button: { textTransform: 'none' },
   },
-  shape: {
-    borderRadius: "24px !important",
-  },
+  // shape: {
+  //   borderRadius: "24px !important",
+  // },
   spacing: 8,
   components: {
+
+      MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          // scrollbarColor: " #fff !important", // Firefox
+          "&::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+            backgroundColor: "#fff !important",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "#fff !important",
+            borderRadius: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#fff !important",
+            borderRadius: "8px",
+            transition: "background-color 0.3s ease",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#d32222ff !important",
+          },
+        },
+      },
+    },
+  // },
+
 
     MuiButton: {
       defaultProps: {

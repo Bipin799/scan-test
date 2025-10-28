@@ -53,3 +53,56 @@ a {
     color-scheme: dark;
   }
 }
+
+
+
+/* ==============================
+   SCROLLBAR COLORS
+   ============================== */
+
+/* Light mode / default */
+:root {
+  --scrollbar-track: #ffffff;  
+  --scrollbar-thumb: #aeaeae;   
+  --scrollbar-thumb-hover: #aeaeae;
+}
+
+/* Dark mode (optional) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --scrollbar-track: #ffffff;    /* Force scrollbar track white even in dark mode */
+    --scrollbar-thumb: #aeaeae;
+    --scrollbar-thumb-hover: #aeaeae;
+  }
+}
+
+/* ==============================
+   CHROME / EDGE / SAFARI
+   ============================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--scrollbar-track);  /* ONLY track color changes */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);  /* Thumb color */
+  border-radius: 10px;
+  border: 2px solid var(--scrollbar-track); /* Adds subtle padding effect */
+  transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover); /* Hover color */
+}
+
+/* ==============================
+   FIREFOX
+   ============================== */
+html {
+  scrollbar-width: none;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); /* thumb track */
+}

@@ -39,6 +39,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import TableChartIcon from "@mui/icons-material/TableChart";
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 
 const drawerWidth = 280;
 const collapsedDrawerWidth = 72;
@@ -71,6 +72,7 @@ export default function Layout({ children }) {
     { label: "Line Chart", path: "/linegraph", icon: <LineChartIcon /> },
     { label: "Bar Chart", path: "/bargraph", icon: <BarChartIcon /> },
     { label: "Patient", path: "/patient", icon: <PatientIcon /> },
+    { label: 'Community HW', path: '/CommunityWorkerRegister', icon: <Diversity3Icon /> },
   ];
 
   

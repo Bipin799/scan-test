@@ -6722,6 +6722,603 @@ s
 
 
 
+// 'use client';
+
+// import React, { useEffect, useState } from "react";
+// import Layout from "../component/Layout";
+// import CustomCard from "../component/CustomCard";
+// import CustomStepper from "../component/CustomStepper";
+// import BackButton from "../component/BackButton";
+// import CustomButton from "../component/CustomButton";
+// import { Form, Formik } from "formik";
+// import { Container, Box, FormControl, Select, MenuItem, TextField, Typography, Switch } from "@mui/material";
+// import { validationSchemas, initialValues }  from '../utils/profileValidation';
+// import StepHeader from "../component/StepHeader";
+// import GenderSelector from "../component/GenderSelector";
+// import AgeSection from "../component/AgeSection";
+// import { debounce } from 'lodash';
+// import axios from "axios";
+// import CustomTextField from "../component/CustomTextField";
+// import AddOrganizationModal from "../component/AddOrganizationModal";
+// import AddQualificationModal from "../component/AddQualificationModal";
+
+// export default function CommunityWorkerRegister() {
+//     // State declarations
+//     const [activeStep, setActiveStep] = useState(0);
+//     const [isWorking, setIsWorking] = useState(false);
+//     const [openModal, setOpenModal] = useState(false);
+//     const [organizations, setOrganizations] = useState([]);
+//     const [openQualificationModal, setOpenQualificationModal] = useState(false);
+//     const [qualifications, setQualifications] = useState([]);
+
+//     const steps = ['1', '2', '3', '4'];
+
+//     // Handler functions
+//     const handleNext = async (validateForm, values, setTouched) => {
+//         // const errors = await validateForm();
+//         // const stepFields = Object.keys(validationSchemas[activeStep].fields);   
+//         // const touchedFields = {};
+//         // stepFields.forEach(field => {
+//         //   touchedFields[field] = true;
+//         // });
+//         // setTouched(touchedFields);
+//         // const hasStepErrors = stepFields.some(field => errors[field]);   
+//         // if (!hasStepErrors && activeStep < steps.length - 1) {
+//         //   setActiveStep((prevActiveStep) => prevActiveStep + 1);
+//         // }
+
+//         if (activeStep < steps.length - 1) {
+//             setActiveStep((prevActiveStep) => prevActiveStep + 1);
+//         }
+//     };
+
+//     const calculateAge = (birthdate) => {
+//         const today = new Date();
+//         const birth = new Date(birthdate);
+//         let age = today.getFullYear() - birth.getFullYear();
+//         const monthDiff = today.getMonth() - birth.getMonth();
+        
+//         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+//             age--;
+//         }
+        
+//         return age;
+//     };
+
+//     const handleBack = () => {
+//         if (activeStep > 0) {
+//             setActiveStep((prevActiveStep) => prevActiveStep - 1);
+//         }
+//     };
+
+//     const handleSubmit = (values) => {
+//         console.log("Form submitted successfully with data:", values);
+//     };
+
+//     const fetchLocationDetails = async (zipCode) => {
+//         try {
+//             const response = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
+//             const data = response.data;
+
+//             if (data && data[0]?.Status === "Success" && data[0]?.PostOffice?.[0]) {
+//                 const { District, State } = data[0].PostOffice[0];
+//                 return { city: District, state: State, country: "India", valid: true };
+//             } else {
+//                 return { city: "", state: "", country: "", valid: false };
+//             }
+//         } catch (error) {
+//             console.error("Error fetching location details:", error);
+//             return { city: "", state: "", country: "", valid: false };
+//         }
+//     };
+
+//     const debouncedFetchLocation = debounce(
+//         async (zipCode, setFieldValue, setFieldError) => {
+//             const location = await fetchLocationDetails(zipCode);
+
+//             if (location.valid) {
+//                 setFieldValue("city", location.city);
+//                 setFieldValue("state", location.state);
+//                 setFieldValue("country", location.country);
+//                 setFieldError("zipCode", "");
+//             } else {
+//                 setFieldValue("city", "");
+//                 setFieldValue("state", "");
+//                 setFieldValue("country", "");
+//                 setFieldError("zipCode", "Invalid ZIP code");
+//             }
+//         },
+//         500
+//     );
+
+//     // Effects
+//     useEffect(() => {
+//         return () => {
+//             debouncedFetchLocation.cancel();
+//         };
+//     }, [debouncedFetchLocation]);
+
+//     const handleSaveOrganization = (name) => {
+//         setOrganizations([...organizations, name]);
+//         console.log("Organizations:", [...organizations, name]);
+//     };
+
+//     const handleSaveQualification = (qual) => {
+//         setQualifications([...qualifications, qual]);
+//         console.log("Qualifications:", [...qualifications, qual]);
+//     };
+
+//     return (
+//         <>
+//             <Layout>
+//                 <CustomCard title="Community Worker Registeration">
+//                     <Container 
+//                         maxWidth="sm"
+//                         sx={{ py: 3, mx: "auto" }}
+//                     >
+//                         <CustomStepper steps={steps} activeStep={activeStep} />
+                        
+//                         <Formik
+//                             initialValues={initialValues}
+//                             validationSchema={validationSchemas[activeStep]}
+//                             onSubmit={handleSubmit}
+//                             validateOnChange={true}
+//                             validateOnBlur={true}
+//                         >
+//                             {({ 
+//                                 values, 
+//                                 errors, 
+//                                 touched, 
+//                                 setFieldError, 
+//                                 setFieldTouched, 
+//                                 handleChange, 
+//                                 handleBlur, 
+//                                 setFieldValue, 
+//                                 validateForm, 
+//                                 setTouched, 
+//                                 isSubmitting, 
+//                                 setSubmitting 
+//                             }) => (
+//                                 <Form>
+//                                     <Box elevation={0}>
+//                                         {/* Step 1: Profile */}
+//                                         {activeStep === 0 && (
+//                                             <>
+//                                                 <StepHeader 
+//                                                     src="/profile.svg" 
+//                                                     title="I Am Community Health Worker / Profile" 
+//                                                 />
+                                                
+//                                                 {/* Title and First Name Row */}
+//                                                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+//                                                     <FormControl 
+//                                                         sx={{ minWidth: 120 }} 
+//                                                         error={touched.title && Boolean(errors.title)}
+//                                                     >
+//                                                         <Select
+//                                                             name="title"
+//                                                             value={values.title}
+//                                                             onChange={handleChange}
+//                                                             onBlur={handleBlur}
+//                                                             displayEmpty
+//                                                         >
+//                                                             <MenuItem value="Mr.">Mr.</MenuItem>
+//                                                             <MenuItem value="Miss.">Miss.</MenuItem>
+//                                                             <MenuItem value="Mrs.">Mrs.</MenuItem>
+//                                                             <MenuItem value="Ms.">Ms.</MenuItem>
+//                                                             <MenuItem value="Baby">Baby</MenuItem>
+//                                                             <MenuItem value="Dr.">Dr.</MenuItem>
+//                                                             <MenuItem value="Master">Master</MenuItem>
+//                                                         </Select>
+//                                                         {touched.title && errors.title && (
+//                                                             <FormHelperText>{errors.title}</FormHelperText>
+//                                                         )}
+//                                                     </FormControl>
+
+//                                                     <TextField
+//                                                         fullWidth
+//                                                         name="firstName"
+//                                                         placeholder="First Name*"
+//                                                         value={values.firstName}
+//                                                         onChange={(e) => {
+//                                                             const value = e.target.value.replace(/[^A-Za-z]/g, '');
+//                                                             setFieldValue('firstName', value);
+//                                                         }}
+//                                                         onBlur={handleBlur}
+//                                                         error={touched.firstName && Boolean(errors.firstName)}
+//                                                         helperText={touched.firstName && errors.firstName}
+//                                                     />
+//                                                 </Box>
+
+//                                                 {/* Last Name */}
+//                                                 <Box sx={{ mb: 2 }}>
+//                                                     <CustomTextField
+//                                                         fullWidth
+//                                                         name="lastName"
+//                                                         placeholder="Last Name*"
+//                                                         value={values.lastName}
+//                                                         onChange={(e) => {
+//                                                             const value = e.target.value.replace(/[^A-Za-z]/g, '');
+//                                                             setFieldValue('lastName', value);
+//                                                         }}
+//                                                         onBlur={handleBlur}
+//                                                         error={touched.lastName && Boolean(errors.lastName)}
+//                                                         helperText={touched.lastName && errors.lastName}
+//                                                     />
+//                                                 </Box>
+
+//                                                 {/* Qualifications Section */}
+//                                                 <Box sx={{ 
+//                                                     display: "flex", 
+//                                                     flexDirection: "column", 
+//                                                     gap: 2, 
+//                                                     fontFamily: "Nunito, sans-serif", 
+//                                                     color: "rgba(0, 0, 0, 0.87)" 
+//                                                 }}>
+//                                                     {/* Header with Add Button */}
+//                                                     <Box sx={{ 
+//                                                         display: "flex", 
+//                                                         alignItems: "center", 
+//                                                         justifyContent: "space-between" 
+//                                                     }}>
+//                                                         <Typography variant="h6">Qualifications</Typography>
+//                                                         <CustomButton 
+//                                                             type="button" 
+//                                                             label="Add" 
+//                                                             onClick={() => setOpenQualificationModal(true)} 
+//                                                         />
+//                                                     </Box>
+
+//                                                     {/* Display added qualifications */}
+//                                                     <Box sx={{ mb: 2 }}>
+//                                                         {qualifications.length === 0 ? (
+//                                                             <Typography variant="body1">
+//                                                                 No qualifications are added.
+//                                                             </Typography>
+//                                                         ) : (
+//                                                             qualifications.map((q, idx) => (
+//                                                                 <Typography key={idx} variant="body2">
+//                                                                     • {q}
+//                                                                 </Typography>
+//                                                             ))
+//                                                         )}
+//                                                     </Box>
+
+//                                                     {/* Modal */}
+//                                                     <AddQualificationModal
+//                                                         open={openQualificationModal}
+//                                                         onClose={() => setOpenQualificationModal(false)}
+//                                                         onSave={handleSaveQualification}
+//                                                     />
+//                                                 </Box>
+
+//                                                 {/* Registration Section */}
+//                                                 <Box sx={{ 
+//                                                     display: 'flex', 
+//                                                     flexDirection: 'column', 
+//                                                     mb: 2 
+//                                                 }}>
+//                                                     <Typography variant="h6" sx={{ fontWeight: 500 }}>
+//                                                         Registration
+//                                                     </Typography>
+//                                                     <CustomTextField
+//                                                         fullWidth
+//                                                         name="registration"
+//                                                         placeholder="Registration no."
+//                                                         value={values.registration}
+//                                                         onChange={(e) => {
+//                                                             const value = e.target.value.replace(/[^A-Za-z]/g, '');
+//                                                             setFieldValue('registration', value);
+//                                                         }}
+//                                                         onBlur={handleBlur}
+//                                                         error={touched.firstName && Boolean(errors.registration)}
+//                                                         helperText={touched.firstName && errors.registration}
+//                                                     /> 
+//                                                 </Box>
+
+//                                                 {/* Organization Switch */}
+//                                                 <Box sx={{ 
+//                                                     display: "flex", 
+//                                                     alignItems: "center", 
+//                                                     justifyContent: "space-between", 
+//                                                     fontFamily: "Nunito, sans-serif", 
+//                                                     color: "rgba(0, 0, 0, 0.87)", 
+//                                                     mb: 2 
+//                                                 }}>
+//                                                     <Typography variant="body1">
+//                                                         Are you working with any organization?
+//                                                     </Typography>
+//                                                     <Switch 
+//                                                         checked={isWorking} 
+//                                                         onChange={(e) => setIsWorking(e.target.checked)} 
+//                                                         name="workingWithOrganization" 
+//                                                         color="primary" 
+//                                                     />
+//                                                 </Box>
+
+//                                                 {/* Organization Section */}
+//                                                 {isWorking && (
+//                                                     <Box sx={{ 
+//                                                         display: "flex", 
+//                                                         flexDirection: "column", 
+//                                                         gap: 2, 
+//                                                         fontFamily: "Nunito, sans-serif", 
+//                                                         color: "rgba(0, 0, 0, 0.87)" 
+//                                                     }}>
+//                                                         <Box sx={{ 
+//                                                             display: "flex", 
+//                                                             alignItems: "center", 
+//                                                             justifyContent: "space-between" 
+//                                                         }}>
+//                                                             <Typography variant="h6">Organization*</Typography>
+//                                                             <CustomButton 
+//                                                                 type="button" 
+//                                                                 label="Add" 
+//                                                                 onClick={() => setOpenModal(true)} 
+//                                                             />
+//                                                         </Box>
+
+//                                                         {/* Optional: Show added organizations */}
+//                                                         {organizations.length > 0 && (
+//                                                             <Box sx={{ mt: 1 }}>
+//                                                                 {organizations.map((org, idx) => (
+//                                                                     <Typography key={idx} variant="body2">
+//                                                                         • {org}
+//                                                                     </Typography>
+//                                                                 ))}
+//                                                             </Box>
+//                                                         )}
+//                                                     </Box>
+//                                                 )}
+
+//                                                 {/* Modal */}
+//                                                 <AddOrganizationModal
+//                                                     open={openModal}
+//                                                     onClose={() => setOpenModal(false)}
+//                                                     onSave={handleSaveOrganization}
+//                                                 />
+//                                             </>
+//                                         )}
+
+//                                         {/* Step 2: Gender */}
+//                                         {activeStep === 1 && (
+//                                             <>
+//                                                 <StepHeader 
+//                                                     src="/gender.svg" 
+//                                                     title="I Am Community Health Worker / Gender" 
+//                                                 />
+//                                                 <GenderSelector
+//                                                     value={values.gender}
+//                                                     onChange={(gender) => setFieldValue('gender', gender)}
+//                                                     // isPregnant={values.isPregnant}
+//                                                     setFieldValue={setFieldValue}
+//                                                     error={touched.gender && errors.gender}
+//                                                     showPregnantToggle={false} 
+//                                                 />
+//                                             </>
+//                                         )}
+
+//                                         {/* Step 3: Age */}
+//                                         {activeStep === 2 && (
+//                                             <>
+//                                                 <StepHeader 
+//                                                     src="/age.svg" 
+//                                                     title="I Am Community Health Worker / Age" 
+//                                                 />
+//                                                 <AgeSection
+//                                                     birthdate={values.birthdate}
+//                                                     age={values.age}
+//                                                     onBirthdateChange={(e) => {
+//                                                         const birthdate = e.target.value;
+//                                                         const calculatedAge = birthdate ? calculateAge(birthdate) : '';
+//                                                         setFieldValue('birthdate', birthdate);
+//                                                         setFieldValue('age', calculatedAge);
+//                                                     }}
+//                                                     onAgeChange={(e) => setFieldValue('age', e.target.value)}
+//                                                     errors={errors}
+//                                                     touched={touched}
+//                                                 />
+//                                             </>
+//                                         )}
+
+//                                         {/* Step 4: Address */}
+//                                         {activeStep === 3 && (
+//                                             <>
+//                                                 <StepHeader 
+//                                                     src="/address.svg" 
+//                                                     title="I Am Community Health Worker / Address" 
+//                                                 />
+                                                
+//                                                 {/* Address Type */}
+//                                                 <Box sx={{ mb: 3 }}>
+//                                                     <Typography 
+//                                                         variant="caption" 
+//                                                         sx={{ 
+//                                                             color: '#333', 
+//                                                             mb: 0.5, 
+//                                                             display: 'block', 
+//                                                             pl: 1 
+//                                                         }}
+//                                                     >
+//                                                         Select Address Type*
+//                                                     </Typography>
+//                                                     <FormControl 
+//                                                         fullWidth 
+//                                                         error={touched.addressType && Boolean(errors.addressType)}
+//                                                     >
+//                                                         <Select
+//                                                             name="addressType"
+//                                                             value={values.addressType}
+//                                                             onChange={handleChange}
+//                                                             onBlur={handleBlur}
+//                                                         >
+//                                                             <MenuItem value="Register">Register</MenuItem>
+//                                                             <MenuItem value="Primary">Primary</MenuItem>
+//                                                             <MenuItem value="Secondary">Secondary</MenuItem>
+//                                                         </Select>
+//                                                         {touched.addressType && errors.addressType && (
+//                                                             <FormHelperText>{errors.addressType}</FormHelperText>
+//                                                         )}
+//                                                     </FormControl>
+//                                                 </Box>
+
+//                                                 {/* ZipCode and City Row */}
+//                                                 <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+//                                                     <Box sx={{ flex: 1 }}>
+//                                                         <CustomTextField
+//                                                             fullWidth
+//                                                             name="zipCode"
+//                                                             placeholder="ZipCode*"
+//                                                             value={values.zipCode}
+//                                                             onChange={async (e) => {
+//                                                                 let value = e.target.value.replace(/\D/g, "");
+//                                                                 if (value.length > 6) value = value.slice(0, 6);
+
+//                                                                 setFieldValue("zipCode", value);
+//                                                                 setFieldTouched("zipCode", true);
+
+//                                                                 if (value.length === 6) {
+//                                                                     const location = await fetchLocationDetails(value);
+
+//                                                                     if (location.valid) {
+//                                                                         setFieldValue("city", location.city);
+//                                                                         setFieldValue("state", location.state);
+//                                                                         setFieldValue("country", location.country);
+//                                                                         setFieldError("zipCode", "");
+//                                                                     } else {
+//                                                                         setFieldValue("city", "");
+//                                                                         setFieldValue("state", "");
+//                                                                         setFieldValue("country", "");
+//                                                                         setFieldError("zipCode", "Invalid ZIP code");
+//                                                                         setFieldTouched("zipCode", true, false);
+//                                                                     }
+//                                                                 } else {
+//                                                                     setFieldValue("city", "");
+//                                                                     setFieldValue("state", "");
+//                                                                     setFieldValue("country", "");
+//                                                                     setFieldError("zipCode", "");
+//                                                                 }
+//                                                             }}
+//                                                             error={touched.zipCode && Boolean(errors.zipCode)}
+//                                                             helperText={touched.zipCode && errors.zipCode}
+//                                                             onBlur={handleBlur}
+//                                                         />
+//                                                     </Box>
+//                                                     <Box sx={{ flex: 1 }}>
+//                                                         <CustomTextField
+//                                                             fullWidth
+//                                                             name="city"
+//                                                             placeholder="City*"
+//                                                             value={values.city}
+//                                                             // onChange={handleChange}
+//                                                             // onBlur={handleBlur}
+//                                                             // error={touched.city && Boolean(errors.city)}
+//                                                             // helperText={touched.city && errors.city}
+//                                                             InputProps={{
+//                                                                 readOnly: true, 
+//                                                             }}
+//                                                         />
+//                                                     </Box>
+//                                                 </Box>
+
+//                                                 {/* State and Country Row */}
+//                                                 <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+//                                                     <Box sx={{ flex: 1 }}>
+//                                                         <CustomTextField
+//                                                             fullWidth
+//                                                             name="state"
+//                                                             placeholder="State*"
+//                                                             value={values.state}
+//                                                             InputProps={{
+//                                                                 readOnly: true, 
+//                                                             }}
+//                                                         />
+//                                                     </Box>
+//                                                     <Box sx={{ flex: 1 }}>
+//                                                         <CustomTextField
+//                                                             fullWidth
+//                                                             name="country"
+//                                                             placeholder="Country*"
+//                                                             value={values.country}
+//                                                             InputProps={{
+//                                                                 readOnly: true, 
+//                                                             }}
+//                                                         />
+//                                                     </Box>
+//                                                 </Box>
+
+//                                                 {/* Address Line 1 */}
+//                                                 <Box sx={{ mb: 3 }}>
+//                                                     <CustomTextField
+//                                                         fullWidth
+//                                                         name="address1"
+//                                                         placeholder="Address 1*"
+//                                                         value={values.address1}
+//                                                         onChange={handleChange}
+//                                                         onBlur={handleBlur}
+//                                                         error={touched.address1 && Boolean(errors.address1)}
+//                                                         helperText={touched.address1 && errors.address1}
+//                                                     />
+//                                                 </Box>
+
+//                                                 {/* Address Line 2 */}
+//                                                 <Box sx={{ mb: 3 }}>
+//                                                     <CustomTextField
+//                                                         fullWidth
+//                                                         name="address2"
+//                                                         placeholder="Address 2"
+//                                                         value={values.address2}
+//                                                         onChange={handleChange}
+//                                                         onBlur={handleBlur}
+//                                                     />
+//                                                 </Box>
+//                                             </>
+//                                         )}
+
+//                                         {/* Navigation Buttons */}
+//                                         <Box sx={{ 
+//                                             display: 'flex', 
+//                                             justifyContent: 'flex-end', 
+//                                             mt: 2, 
+//                                             gap: 1 
+//                                         }}>
+//                                             <BackButton 
+//                                                 variant="text" 
+//                                                 onClick={handleBack} 
+//                                                 disabled={activeStep === 0}
+//                                             >
+//                                                 Back
+//                                             </BackButton>
+
+//                                             {activeStep === steps.length - 1 && (
+//                                                 <CustomButton 
+//                                                     type="submit" 
+//                                                     label="Submit"
+//                                                     // disabled={isSubmitting} 
+//                                                     onClick={setSubmitting} 
+//                                                 />
+//                                             )}
+
+//                                             {activeStep !== steps.length - 1 && (
+//                                                 <CustomButton
+//                                                     type="button"
+//                                                     onClick={() => handleNext(validateForm, values, setTouched)}
+//                                                     label="Next"
+//                                                 />
+//                                             )}                        
+//                                         </Box>
+//                                     </Box>
+//                                 </Form>
+//                             )}
+//                         </Formik>
+//                     </Container>
+//                 </CustomCard>
+//             </Layout> 
+//         </>
+//     );
+// }
+
+
 
 
 

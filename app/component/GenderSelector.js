@@ -21,7 +21,7 @@ const genders = [
   { label: "Prefer not to say", value: "prefer_not_to_say", icon: NotSayIcon, disabledIcon: NotSayDisableIcon },
 ];
 
-export default function GenderSelector({ value, onChange, onPregnantChange, error, isPregnant, setFieldValue }) {
+export default function GenderSelector({ value, onChange, onPregnantChange, error, isPregnant, setFieldValue, showPregnantToggle = true, }) {
 
   const handleGenderClick = (genderValue) => {
     setFieldValue("gender", genderValue);
@@ -124,7 +124,7 @@ export default function GenderSelector({ value, onChange, onPregnantChange, erro
       
 
       {/* Custom "Are you pregnant?" toggle */}
-      {value === "female" && (
+      {showPregnantToggle && value === "female" && (
         <Box
           sx={{
             mt: 2,
