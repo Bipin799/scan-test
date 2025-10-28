@@ -162,7 +162,6 @@ const AddQualificationModal = ({ open, onClose, onSave, editData }) => {
   // };
 
   const isEditMode = Boolean(editData);
-  console.log("isEditMode -----> ", isEditMode);
   
   const initialValues = editData
     ? {

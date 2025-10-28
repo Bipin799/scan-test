@@ -39,8 +39,7 @@ export default function CommunityWorkerRegister() {
           touchedFields[field] = true;
         });
         setTouched(touchedFields);
-        const hasStepErrors = stepFields.some(field => errors[field]);   
-        
+        const hasStepErrors = stepFields.some(field => errors[field]);           
         if (!hasStepErrors && activeStep < steps.length - 1) {
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }
@@ -116,14 +115,12 @@ export default function CommunityWorkerRegister() {
 
     const handleEditQualification = (qualification, index) => {
         setEditQualificationData({ ...qualification, index }); // Use correct setter
-        // console.log("the edit values ", { ...qualification, index });
         
         setOpenQualificationModal(true); // Use correct modal state
     };
 
     const handleEditorganizationName= (organizations, index) => {
         setEditOrganizationData({ ...organizations, index }); // Use correct setter
-        console.log("the values of edit org data  is  ----", { ...organizations, index });
         
         setOpenOrganizationNameModal(true); // Use correct modal state
     };
@@ -133,33 +130,31 @@ export default function CommunityWorkerRegister() {
     setFieldValue("qualifications", updated);
     };
         
-    const handleSaveQualification = (qual, isEditMode, values, setFieldValue, setFieldTouched) => {
+    const handleSaveQualification = async(qual, isEditMode, values, setFieldValue, setFieldTouched, validateForm) => {
         if (isEditMode && editQualificationData?.index !== undefined) {
-            // console.log("if condition is called here ------ > ", isEditMode);
             
             const updatedQualifications = [...values.qualifications];
             updatedQualifications[editQualificationData.index] = qual;
             setFieldValue('qualifications', updatedQualifications);
         } else {
             setFieldValue('qualifications', [...values.qualifications, qual]);
-            // console.log("the values of qualification -------- >", ...values.qualifications);
-            
         }
 
+        await validateForm('qualifications');
         setFieldTouched('qualifications', true);
         setEditQualificationData(null);
         setOpenQualificationModal(false);
     };
 
-    const handleSaveOrganization = (org, isEditMode, values, setFieldValue, setFieldTouched) => {
+    const handleSaveOrganization = async(org, isEditMode, values, setFieldValue, setFieldTouched, validateForm) => {
         if (isEditMode && editOrganizationData?.index !== undefined) {
             const updatedorganizations = [...values.organizations];
             updatedorganizations[editOrganizationData.index] = org;
             setFieldValue('organizations', updatedorganizations);
         } else {
             setFieldValue('organizations', [...values.organizations, org]);
-            console.log(" organizations",  ...values.organizations);
         }
+        await validateForm('qualifications');
         setFieldTouched('organizations', true);
         setEditOrganizationData(null);
         setOpenOrganizationNameModal(false);
@@ -370,7 +365,7 @@ export default function CommunityWorkerRegister() {
 
                                                         editData={editQualificationData} 
                                                        // onSave={handleSaveQualification}
-                                                        onSave={(qual, isEditMode) => handleSaveQualification(qual, isEditMode, values, setFieldValue, setFieldTouched)}
+                                                        onSave={(qual, isEditMode) => handleSaveQualification(qual, isEditMode, values, setFieldValue, setFieldTouched, validateForm)}
                                                         onClose={handleCloseQualificationModal}
                                                     />
                                                 </Box>
@@ -529,7 +524,7 @@ export default function CommunityWorkerRegister() {
                                                     // }}
                                                     
                                                     editData={editOrganizationData}
-                                                    onSave={(org, isEditMode) => handleSaveOrganization(org, isEditMode, values, setFieldValue, setFieldTouched)}
+                                                    onSave={(org, isEditMode) => handleSaveOrganization(org, isEditMode, values, setFieldValue, setFieldTouched, validateForm)}
                                                 />
                                             </>
                                         )}
@@ -585,7 +580,7 @@ export default function CommunityWorkerRegister() {
                                                 
                                                 {/* Address Type */}
                                                 <Box sx={{ mb: 3 }}>
-                                                    <Typography 
+                                                    {/* <Typography 
                                                         variant="caption" 
                                                         sx={{ 
                                                             color: '#333', 
@@ -595,7 +590,7 @@ export default function CommunityWorkerRegister() {
                                                         }}
                                                     >
                                                         Select Address Type*
-                                                    </Typography>
+                                                    </Typography> */}
                                                     <FormControl 
                                                         fullWidth 
                                                         error={touched.addressType && Boolean(errors.addressType)}
@@ -746,7 +741,7 @@ export default function CommunityWorkerRegister() {
                                                 Back
                                             </BackButton>
 
-                                            {activeStep === steps.length - 1 ? (
+                                            {/* {activeStep === steps.length - 1 ? (
                                                 <CustomButton 
                                                     type="submit" 
                                                     label="Submit"
@@ -758,7 +753,23 @@ export default function CommunityWorkerRegister() {
                                                     onClick={() => handleNext(validateForm, values, setTouched)}
                                                     label="Next"
                                                 />
-                                            )}                        
+                                            )} */}
+
+                                            {activeStep === steps.length -1 && (
+                                                <CustomButton type="submit" label="Submit"
+                                                    disabled={isSubmitting} 
+                                                    // onClick={setSubmitting} 
+                                                />
+                                            )}
+                                                              
+                                            {activeStep !== steps.length - 1 && (
+                                                <CustomButton
+                                                    type="button"
+                                                    onClick={() => handleNext(validateForm, values, setTouched)}
+                                                    label="Next"
+                                                />
+                                            )}
+
                                         </Box>
                                     </Box>
                                 </Form>
