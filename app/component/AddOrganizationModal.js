@@ -434,7 +434,7 @@ const AddOrganizationModal = ({ open, onClose, onSave, editData }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       {/* <CustomCard title="Add Organization" sx={{ p: 0 }}> */}
-        <CustomCard title={isEditMode ? "Edit Organization": "Add orgranization" } sx = {{ p: 0 }}>
+        <CustomCard title={isEditMode ? "Edit Organization": "Add orgranization" } sx = {{ p: 0 }} onClose={onClose} >
         <Formik
           // initialValues={organizationInitialValues}
           initialValues = {initialValues}

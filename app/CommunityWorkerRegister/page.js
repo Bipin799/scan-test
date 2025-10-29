@@ -170,6 +170,12 @@ export default function CommunityWorkerRegister() {
         setEditOrganizationData(null);
     };
 
+    // const FORM_STORAGE_KEY = "communityWorkerFormData";
+
+    // useEffect(() => {
+    // localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(values));
+    // }, [values]);
+
 
     return (
         <>
@@ -183,6 +189,9 @@ export default function CommunityWorkerRegister() {
                         
                         <Formik
                             initialValues={communityWorkerInitialValues}
+                            //  initialValues={
+                            //     JSON.parse(localStorage.getItem(FORM_STORAGE_KEY)) || communityWorkerInitialValues
+                            // }
                             validationSchema={communityWorkerValidationSchemas[activeStep]}
                             onSubmit={handleSubmit}
                             validateOnChange={true}
@@ -213,7 +222,7 @@ export default function CommunityWorkerRegister() {
                                                 
                                                 {/* Title and First Name Row */}
                                                 <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                                                    <FormControl 
+                                                <FormControl 
                                                         sx={{ minWidth: 120 }} 
                                                         error={touched.title && Boolean(errors.title)}
                                                     >
@@ -386,7 +395,8 @@ export default function CommunityWorkerRegister() {
                                                         value={values.registration}
                                                         onChange={handleChange}
                                                         onBlur={handleBlur}
-                                                        error={touched.registration && Boolean(errors.registration)}
+                                                        // error={touched.registration && Boolean(errors.registration)} // IF USER WANT TO SHOW VALIDATION  WHEN TOGGLE IS ENABLE
+                                                        // error={Boolean(errors.registration)} // IF USER WANT TO VALIDATION SHOW WHEN USER CLICK ON THE NEXT BUTTON 
                                                         helperText={touched.registration && errors.registration}
                                                     /> 
                                                 </Box>
@@ -494,8 +504,6 @@ export default function CommunityWorkerRegister() {
                                                                                 </InputAdornment>
                                                                             ),
                                                                         }}
-
-
                                                                         />
                                                                 ))}
                                                             </Box>
@@ -522,7 +530,7 @@ export default function CommunityWorkerRegister() {
                                                     //     setFieldValue('organizations', [...values.organizations, org]);
                                                     //     setFieldTouched('organizations', true);
                                                     // }}
-                                                    
+
                                                     editData={editOrganizationData}
                                                     onSave={(org, isEditMode) => handleSaveOrganization(org, isEditMode, values, setFieldValue, setFieldTouched, validateForm)}
                                                 />

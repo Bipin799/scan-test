@@ -188,7 +188,7 @@ const AddQualificationModal = ({ open, onClose, onSave, editData }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       {/* <CustomCard title="Add Qualification" sx={{ p: 0 }}> */}
-      <CustomCard title={isEditMode ? "Edit Qualification" : "Add Qualification"} sx={{ p: 0 }}>
+      <CustomCard title={isEditMode ? "Edit Qualification" : "Add Qualification"} sx={{ p: 0 }} onClose={onClose} >
         <Formik
           // initialValues={qualificationInitialValues}
           initialValues={initialValues}
@@ -274,7 +274,6 @@ const AddQualificationModal = ({ open, onClose, onSave, editData }) => {
                   />
                 </LocalizationProvider>
 
-
                 {/* Institute Field */}
                 <TextField
                   label="Institute/Organization"
@@ -286,8 +285,6 @@ const AddQualificationModal = ({ open, onClose, onSave, editData }) => {
                   helperText={touched.institute && errors.institute}
                   fullWidth
                 />
-
-
               </Box>
 
               {/* Action Buttons */}
