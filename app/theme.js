@@ -84,7 +84,7 @@ const theme = createTheme({
           borderRadius: '4px !important',
           padding: '12px 24px',
           "@media (max-width:600px)": {
-            padding: "8px 16px", // smaller padding on mobile
+            padding: "8px 16px",
           },
         },
       },
@@ -194,31 +194,31 @@ const theme = createTheme({
     // },
 
 
-    MuiFormControlLabel: {
-    styleOverrides: {
-      root: {
-        borderRadius: "20px",
-        backgroundColor: "#fff",
-        boxShadow:
-          "inset 2px 2px 8px rgba(95,157,231,0.48), inset -2px -2px 8px #FFF",
-        margin: "6px",
-        padding: "8px 20px",
-        transition: "all 0.2s ease-in-out",
+    // MuiFormControlLabel: {
+    // styleOverrides: {
+    //   root: {
+    //     borderRadius: "20px",
+    //     backgroundColor: "#fff",
+    //     boxShadow:
+    //       "inset 2px 2px 8px rgba(95,157,231,0.48), inset -2px -2px 8px #FFF",
+    //     margin: "6px",
+    //     padding: "8px 20px",
+    //     transition: "all 0.2s ease-in-out",
 
-        "&:hover": {
-          backgroundColor: "#fff",
-          boxShadow:
-            "inset 3px 3px 10px rgba(95,157,231,0.6), inset -3px -3px 10px #fff",
-        },
+    //     "&:hover": {
+    //       backgroundColor: "#fff",
+    //       boxShadow:
+    //         "inset 3px 3px 10px rgba(95,157,231,0.6), inset -3px -3px 10px #fff",
+    //     },
 
-        "& .MuiFormControlLabel-label": {
-          fontFamily: "Nunito, sans-serif",
-          fontWeight: 500,
-          color: "#333",
-        },
-      },
-    },
-    },
+    //     "& .MuiFormControlLabel-label": {
+    //       fontFamily: "Nunito, sans-serif",
+    //       fontWeight: 500,
+    //       color: "#333",
+    //     },
+    //   },
+    // },
+    // },
 
     MuiCssBaseline: {
       styleOverrides: {

@@ -76,61 +76,29 @@ const ToggleSwitchCircle = styled("span")(({ checked }) => ({
   transition: "all 0.3s ease-in 0s",
 }));
 
-export default function CustomToggles({ values, setFieldValue }) {
-
-  // const [toggles, setToggles] = useState({
-  //   maritalStatus: false,
-  //   isDiabetic: false,
-  //   isHypertension: false,
-  // });
-
-  // const handleToggle = (name) => {
-  //   setToggles((prev) => ({ ...prev, [name]: !prev[name] }));
-  // };
+export default function CustomToggles({ values, setFieldValue, fields }) {
 
   const handleToggle = (name) => {
     setFieldValue(name, !values[name]);
   };
 
-
   const toggleData = [
     { label: "Are you married?", name: "isMarried" },
     { label: "Do you have diabetes?", name: "hasDiabetes" },
     { label: "Do you have hypertension?", name: "hasHypertension" },
+    {label: "Do you want to link ABHA with other number?", name:"islinked"},
   ];
 
+  const filteredToggles = fields 
+    ? toggleData.filter((item) => fields.includes(item.name))
+    : toggleData;
+
   return (
-    <Stack
-      spacing={2}
-      sx={{
-        fontFamily: "Nunito, sans-serif",
-        fontSize: "1rem",
-        fontWeight: 400,
-        lineHeight: 1.5,
-        color: "rgba(0,0,0,0.87)",
-      }}
-    >
-      {toggleData.map((item) => (
-        <Box
-          key={item.name}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Typography
-            component="span"
-            sx={{
-              fontFamily: "inherit",
-              fontSize: "inherit",
-              fontWeight: "inherit",
-              lineHeight: "inherit",
-              color: "inherit",
-            }}
-          >
-            {item.label}
-          </Typography>
+    <Stack spacing={2}>
+      {filteredToggles.map((item) => (
+        <Box key={item.name} sx={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <Typography>{item.label}</Typography>
+
           <ToggleSwitch>
             <ToggleInput
               type="checkbox"

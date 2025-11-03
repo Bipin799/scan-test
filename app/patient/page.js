@@ -274,7 +274,7 @@ export default function ProfileForm() {
                         helperText={touched.lastName && errors.lastName}
                       />
                     </Box>
-                    <CustomToggles values={values} setFieldValue={setFieldValue} />
+                    <CustomToggles values={values} setFieldValue={setFieldValue} fields={["isMarried","hasDiabetes","hasHypertension"]} />
                   </>
                 )}
 
