@@ -126,7 +126,12 @@ export default function RegisterMobile() {
                       <Box sx={{ mb: 2 }}>
                         <CustomToggles
                           values={values}
-                          setFieldValue={setFieldValue}
+                          setFieldValue={(field, val) => {
+                            setFieldValue(field, val);
+                            if (field === "islinked" && val === true) {
+                              setFieldValue("mobile", "");
+                            }
+                          }}
                           fields={["islinked"]}
                         />
                       </Box>
@@ -466,7 +471,7 @@ export default function RegisterMobile() {
                   )}
 
                   {/* Navigation Buttons */}
-                  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 1 }}>
+                  {/* <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 1 }}>
                     <BackButton 
                       variant="text" 
                       onClick={handleBack} 
@@ -484,7 +489,38 @@ export default function RegisterMobile() {
                         onClick={() => handleNext(validateForm, setTouched, values)}
                       />
                     )}
-                  </Box>
+                  </Box> */}
+
+                  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 1 }}>
+
+                  {/* Hide Back button when activeStep = 1 */}
+                  {activeStep !== 0 && (
+                    <BackButton 
+                      variant="text" 
+                      onClick={handleBack} 
+                      disabled={activeStep === 0}
+                    >
+                      Back
+                    </BackButton>
+                  )}
+
+                  {activeStep === steps.length - 1 && (
+                    <CustomButton type="submit" label="Submit"
+                    onClick={() => handleNext(validateForm, setTouched, values)}
+                    // onClick={setSubmitting} 
+                     />
+                  )}
+                  
+                  {activeStep !== steps.length - 1 &&(
+                    <CustomButton
+                      type="button"
+                      label={activeStep === 0 ? "Generate OTP" : "Next"}  
+                      onClick={() => handleNext(validateForm, setTouched, values)}
+                    />
+                  )}
+
+                </Box>
+
                 </Box>
               </Form>
             )}

@@ -24,3 +24,4 @@ export default function TermsDialog({ open, onClose, step = 1 }) {
     </Dialog>
   );
 }
+
