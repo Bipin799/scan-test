@@ -6,7 +6,6 @@ import * as Yup from "yup";
 import Layout from "@/app/component/Layout";
 import StepHeader from "@/app/component/StepHeader";
 import TermsDialog from "@/app/component/TermsDialog";
-import OtpInput from "@/app/component/OtpInput";
 
 import {
   Box,
@@ -71,7 +70,7 @@ export default function AadhaarNumber() {
     initialValues: {
       aadhaarNumber: "",
       termsAccepted: false,
-    //   otp: "",
+      otp: "",
       abhaAddress: "",
     },
     validationSchema: validationSchemas[activeStep],
