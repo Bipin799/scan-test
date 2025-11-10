@@ -106,7 +106,7 @@ const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          padding: "16px",
+          // padding: "16px",
           "@media (max-width:600px)": {
             padding: "8px", // less padding on mobile
           },

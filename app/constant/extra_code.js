@@ -7326,3 +7326,255 @@ s
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import { 
+//   Box, 
+//   Container,
+//   Grid, 
+//   Typography, 
+//   Button, 
+//   Card, 
+//   CardContent, 
+//   Chip, 
+//   Stack,
+//   Paper,
+//   Divider
+// } from "@mui/material";
+// import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+// import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+
+// export default function ProductDetail() {
+//   const data = {
+//     product_img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80",
+//     product_name: "Glucose Strip 50",
+//     product_title: "Blood Sugar Monitor Strip",
+//     product_description:
+//       "This glucose test strip helps measure blood sugar levels accurately and quickly. Suitable for both home and clinical use.",
+//     price: "₹70",
+//     minQuantity: "30",
+//   };
+
+//   return (
+//     <Box
+//       sx={{
+//         bgcolor: "#f5f7fa",
+//         minHeight: "100vh",
+//         py: { xs: 3, md: 6 },
+//         display: "flex",
+//         alignItems: "center",
+//       }}
+//     >
+//       <Container maxWidth="lg">
+//         <Card
+//           elevation={0}
+//           sx={{
+//             borderRadius: 3,
+//             overflow: "hidden",
+//             boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+//           }}
+//         >
+//           <Grid container>
+//             {/* Image Section */}
+//             <Grid item xs={12} md={6}>
+//               <Box
+//                 sx={{
+//                   position: "relative",
+//                   bgcolor: "#fafafa",
+//                   display: "flex",
+//                   alignItems: "center",
+//                   justifyContent: "center",
+//                   p: { xs: 3, md: 4 },
+//                   minHeight: { xs: 350, md: 450 },
+//                 }}
+//               >
+//                 <img
+//                   src={data.product_img}
+//                   alt={data.product_name}
+//                   style={{
+//                     width: "100%",
+//                     maxWidth: "420px",
+//                     height: "auto",
+//                     objectFit: "contain",
+//                     borderRadius: "20px",
+//                     display: "block",
+//                   }}
+//                 />
+//               </Box>
+//             </Grid>
+
+//             {/* Details Section */}
+//             <Grid item xs={12} md={6}>
+//               <CardContent sx={{ p: { xs: 3, md: 5 } }}>
+//                 <Stack spacing={3}>
+//                   <Box>
+//                     <Chip
+//                       icon={<LocalOfferIcon />}
+//                       label="Medical Supply"
+//                       color="primary"
+//                       variant="outlined"
+//                       size="small"
+//                     />
+//                   </Box>
+
+//                   <Box>
+//                     <Typography
+//                       variant="h4"
+//                       fontWeight="700"
+//                       sx={{
+//                         color: "text.primary",
+//                         mb: 0.5,
+//                         lineHeight: 1.2,
+//                       }}
+//                     >
+//                       {data.product_name}
+//                     </Typography>
+//                     <Typography
+//                       variant="h6"
+//                       color="text.secondary"
+//                       sx={{ fontWeight: 400 }}
+//                     >
+//                       {data.product_title}
+//                     </Typography>
+//                   </Box>
+
+//                   <Divider />
+
+//                   <Typography
+//                     variant="body1"
+//                     color="text.secondary"
+//                     sx={{ lineHeight: 1.8 }}
+//                   >
+//                     {data.product_description}
+//                   </Typography>
+
+//                   <Divider />
+
+//                   {/* Price and Min Quantity */}
+//                   <Box
+//                     sx={{
+//                       display: "flex",
+//                       justifyContent: "space-between",
+//                       gap: 2,
+//                       flexWrap: "wrap",
+//                     }}
+//                   >
+//                     {/* Price Card */}
+//                     <Paper
+//                       elevation={0}
+//                       sx={{
+//                         flex: 1,
+//                         p: 3,
+//                         boxShadow:
+//                           "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
+//                         borderRadius: 2,
+//                         textAlign: "center",
+//                       }}
+//                     >
+//                       <Typography
+//                         variant="caption"
+//                         sx={{
+//                           opacity: 0.9,
+//                           display: "block",
+//                           mb: 1,
+//                           fontWeight: 700,
+//                           fontSize: "1.1rem",
+//                           letterSpacing: 0.3,
+//                           color: "text.primary",
+//                           textTransform: "uppercase",
+//                         }}
+//                       >
+//                         Price
+//                       </Typography>
+//                       <Typography
+//                         variant="h4"
+//                         fontWeight="700"
+//                         color="primary.main"
+//                       >
+//                         {data.price}
+//                       </Typography>
+//                     </Paper>
+
+//                     {/* Min Quantity Card */}
+//                     <Paper
+//                       elevation={0}
+//                       sx={{
+//                         flex: 1,
+//                         p: 3,
+//                         boxShadow:
+//                           "rgba(95, 157, 231, 0.48) 4px 2px 8px 0px inset, rgb(255, 255, 255) -4px -2px 8px 0px inset",
+//                         borderRadius: 2,
+//                         textAlign: "center",
+//                       }}
+//                     >
+//                       <Typography
+//                         variant="caption"
+//                         sx={{
+//                           display: "block",
+//                           mb: 1,
+//                           fontWeight: 700,
+//                           fontSize: "1.1rem",
+//                           letterSpacing: 0.3,
+//                           color: "text.primary",
+//                           textTransform: "uppercase",
+//                         }}
+//                       >
+//                         Min Quantity
+//                       </Typography>
+//                       <Typography
+//                         variant="h4"
+//                         fontWeight="700"
+//                         color="primary.main"
+//                       >
+//                         {data.minQuantity}
+//                       </Typography>
+//                     </Paper>
+//                   </Box>
+
+//                   <Button
+//                     variant="contained"
+//                     size="large"
+//                     fullWidth
+//                     startIcon={<ShoppingCartIcon />}
+//                     sx={{
+//                       py: 1.6,
+//                       fontSize: "1rem",
+//                       fontWeight: 600,
+//                       borderRadius: "20px",
+//                       boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+//                       textTransform: "none",
+//                     }}
+//                   >
+//                     Add to Cart
+//                   </Button>
+//                 </Stack>
+//               </CardContent>
+//             </Grid>
+//           </Grid>
+//         </Card>
+//       </Container>
+//     </Box>
+//   );
+// }
+
+
+
+
+
+
+
+
