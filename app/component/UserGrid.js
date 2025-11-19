@@ -22,7 +22,8 @@ import {
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
-export default function UserGrid({ users }) {
+export default function UserGrid({ user }) {
+  
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -62,7 +63,7 @@ export default function UserGrid({ users }) {
         spacing={{ xs: 2, md: 3 }}
         columns={{ xs: 4, sm: 8, md: 12 }}
       >
-        {users.map((user, index) => (
+        {user.map((user, index) => (
           <Grid 
             item
             size={{ xs: 2, sm: 4, md: 4 }}

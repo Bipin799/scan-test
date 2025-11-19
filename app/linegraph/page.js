@@ -599,7 +599,7 @@ const stickyLabelPlugin = {
 
     const labelCount = xAxis.ticks.length;
 
-    console.log("the values of lab---->", labelCount);
+    // console.log("the values of lab---->", labelCount);
     
 
     // Dynamic skip interval based on label count

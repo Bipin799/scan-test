@@ -63,7 +63,9 @@ import { fetchUsers } from "../redux/user/action";
 
 export default function UserList() {
   const dispatch = useDispatch();
-  const { list: users, loading } = useSelector((state) => state.users);
+  const { list: user, loading } = useSelector((state) => {
+    return state.user;
+  });
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -72,7 +74,7 @@ export default function UserList() {
   return (
     <Layout>
       <main style={{ padding: "20px" }}>
-        {loading ? <Loader /> : <UserGrid users={users} />}
+        {loading ? <Loader /> : <UserGrid user={user} />}
         {/* <UserGrid users={users} /> */}
       </main>
     </Layout>
