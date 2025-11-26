@@ -29,6 +29,8 @@ import {
   getStepValidation, 
   generateABHASuggestions 
 } from "../../..//utils/abhavalidation";
+import { useDispatch } from "react-redux";
+import { updateField } from "@/app/redux/patient/patientFormSlice";
 
 export default function RegisterMobile() {
   const [activeStep, setActiveStep] = useState(0);
@@ -39,6 +41,8 @@ export default function RegisterMobile() {
   const [abhaSuggestions, setAbhaSuggestions] = useState([]);
 
   const steps = ["1", "2", "3"];
+
+  const dispatch = useDispatch();
 
   const handleNext = async (validateForm, setTouched, values) => {
     const errors = await validateForm();

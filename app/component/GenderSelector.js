@@ -13,6 +13,8 @@ import LGBTQIcon from "../../public/lgbtq.webp";
 import LGBTQDisableIcon from "../../public/lgbtqDisable.svg";
 import NotSayIcon from "../../public/notTosay.svg";
 import NotSayDisableIcon from "../../public/notTosayDisable.svg";
+import { useDispatch } from "react-redux";
+import { updateField } from "../redux/patient/patientFormSlice";
 
 const genders = [
   { label: "Male", value: "male", icon: MaleIcon, disabledIcon: MaleDisable },
@@ -21,19 +23,24 @@ const genders = [
   { label: "Prefer not to say", value: "prefer_not_to_say", icon: NotSayIcon, disabledIcon: NotSayDisableIcon },
 ];
 
-export default function GenderSelector({ value, onChange, onPregnantChange, error, isPregnant, setFieldValue, showPregnantToggle = true, }) {
+export default function GenderSelector({ value, onChange, onPregnantChange, error, isPregnant, showPregnantToggle = true, }) {
+
+  const dispatch = useDispatch();
 
   const handleGenderClick = (genderValue) => {
-    setFieldValue("gender", genderValue);
+    // setFieldValue("gender", genderValue);
+    dispatch(updateField({field: "gender", value: genderValue}));
 
     // Reset pregnancy if gender changes
     if (genderValue !== "female") {
-      setFieldValue("isPregnant", false);
+      // setFieldValue("isPregnant", false);
+      dispatch(updateField({field:"isPregnant", value: false}));
     }
   };
 
   const handlePregnantToggle = () => {
-    setFieldValue("isPregnant", !isPregnant);
+    // setFieldValue("isPregnant", !isPregnant);
+    dispatch(updateField({field:"isPregnant", value: !isPregnant}));
   };
 
 

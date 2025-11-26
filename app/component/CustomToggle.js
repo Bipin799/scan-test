@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useDispatch, useSelector } from "react-redux";
+import { updateField } from "../redux/patient/patientFormSlice";
 
 const ToggleSwitch = styled("div")({
   position: "relative",
@@ -76,17 +78,22 @@ const ToggleSwitchCircle = styled("span")(({ checked }) => ({
   transition: "all 0.3s ease-in 0s",
 }));
 
-export default function CustomToggles({ values, setFieldValue, fields }) {
+export default function CustomToggles({ values, fields }) {
+
+  const dispatch = useDispatch();
+  // const patientForm  = useSelector((state)=> state.patientForm);
+
 
   const handleToggle = (name) => {
-    setFieldValue(name, !values[name]);
+    // setFieldValue(name, !values[name]);
+    dispatch(updateField({ field: name, value: !values[name] }))
   };
 
   const toggleData = [
     { label: "Are you married?", name: "isMarried" },
     { label: "Do you have diabetes?", name: "hasDiabetes" },
     { label: "Do you have hypertension?", name: "hasHypertension" },
-    {label: "Do you want to link ABHA with other number?", name:"islinked"},
+    { label: "Do you want to link ABHA with other number?", name:"islinked"},
   ];
 
   const filteredToggles = fields 
