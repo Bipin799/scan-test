@@ -41,6 +41,8 @@ import { usePathname } from 'next/navigation';
 import TableChartIcon from "@mui/icons-material/TableChart";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import ChatIcon from "@mui/icons-material/Chat";
+
 
 
 const drawerWidth = 280;
@@ -76,6 +78,7 @@ export default function Layout({ children }) {
     { label: "Patient", path: "/patient", icon: <PatientIcon /> },
     { label: 'Community HW', path: '/CommunityWorkerRegister', icon: <Diversity3Icon /> },
     { label: 'Abha', path: '/abha', icon: <HealthAndSafetyIcon /> },
+    { label: "Chat", path: "/chat", icon: <ChatIcon /> },
   ];
 
   
